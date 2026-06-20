@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>...</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Tajawal:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+    body {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background:
+            radial-gradient(ellipse at 50% 70%, #1a0608 0%, #060608 55%, #000 100%);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .ambient-glow {
+        position: absolute;
+        bottom: -10%;
+        left: 50%;
+        translate: -50% 0;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(179,18,46,0.35) 0%, rgba(179,18,46,0) 70%);
+        filter: blur(10px);
+        opacity: 0;
+        animation: glowIn 3s var(--ease-cinematic) forwards 0.6s;
+    }
+
+    @keyframes glowIn {
+        to { opacity: 1; }
+    }
+
+    .particles {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .particle {
+        position: absolute;
+        bottom: -10px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--color-crimson-glow);
+        box-shadow: 0 0 8px 2px rgba(255, 59, 92, 0.6);
+        opacity: 0;
+        animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+        0% { transform: translateY(0) translateX(0); opacity: 0; }
+        10% { opacity: 0.8; }
+        90% { opacity: 0.4; }
+        100% { transform: translateY(-110vh) translateX(var(--drift, 20px)); opacity: 0; }
+    }
+
+    .rose-wrap {
+        position: relative;
+        z-index: 2;
+        transform: scale(0.3) translateY(40px);
+        opacity: 0;
+        animation: roseGrow 2.4s var(--ease-cinematic) forwards 0.8s;
+        filter: drop-shadow(0 0 40px rgba(255, 59, 92, 0.25));
+    }
+
+    @keyframes roseGrow {
+        0% { transform: scale(0.15) translateY(60px) rotate(-4deg); opacity: 0; }
+        60% { opacity: 1; }
+        100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 1; }
+    }
+
+    .rose-wrap svg {
+        width: min(60vw, 320px);
+        height: auto;
+        animation: sway 6s ease-in-out infinite 3.2s;
+        transform-origin: bottom center;
+    }
+
+    @keyframes sway {
+        0%, 100% { transform: rotate(-1.2deg); }
+        50% { transform: rotate(1.2deg); }
+    }
+
+    .caption {
+        position: relative;
+        z-index: 2;
+        margin-top: 28px;
+        text-align: center;
+        font-family: var(--font-display);
+        color: var(--color-text-dim);
+        font-size: 1.15rem;
+        letter-spacing: 0.5px;
+        opacity: 0;
+        animation: fadeUp 1.4s var(--ease-cinematic) forwards 3.4s;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 0.85; transform: translateY(0); }
+    }
+
+    .caption span {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--color-text-faint);
+        margin-top: 8px;
+        font-family: var(--font-body);
+        font-weight: 300;
+    }
+
+    .fade-out-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 30;
+        transition: opacity 1s var(--ease-cinematic);
+    }
+
+    .fade-out-screen.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+</style>
+</head>
+<body>
+
+<div class="ambient-glow"></div>
+<div class="particles" id="particles"></div>
+
+<div class="rose-wrap" id="rose">
+    <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="petalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff3b5c"/>
+                <stop offset="50%" stop-color="#c81e3c"/>
+                <stop offset="100%" stop-color="#7a0f22"/>
+            </linearGradient>
+            <linearGradient id="petalGradInner" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff6b82"/>
+                <stop offset="100%" stop-color="#b3122e"/>
+            </linearGradient>
+            <linearGradient id="petalGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#c81e3c"/>
+                <stop offset="100%" stop-color="#6b0e1f"/>
+            </linearGradient>
+            <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#2f6b3c"/>
+                <stop offset="100%" stop-color="#173d20"/>
+            </linearGradient>
+            <radialGradient id="centerGlow" cx="50%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#ff8fa3"/>
+                <stop offset="100%" stop-color="#ff3b5c" stop-opacity="0"/>
+            </radialGradient>
+        </defs>
+
+        <!-- stem -->
+        <path d="M100 175 C 94 215, 106 245, 99 295" stroke="url(#stemGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- thorn -->
+        <path d="M97 230 C 90 228, 84 232, 82 238 C 90 238, 96 235, 97 230 Z" fill="#2f6b3c"/>
+        <!-- leaves -->
+        <path d="M100 220 C 76 214, 56 228, 50 252 C 78 252, 96 236, 100 220 Z" fill="#2f6b3c"/>
+        <path d="M100 220 C 76 214, 56 228, 50 252" stroke="#173d20" stroke-width="1" fill="none" opacity="0.6"/>
+        <path d="M99 240 C 108 248, 118 264, 112 282 C 90 278, 80 258, 99 240 Z" fill="#255530"/>
+        <path d="M99 240 C 108 248, 118 264, 112 282" stroke="#142d1a" stroke-width="1" fill="none" opacity="0.6"/>
+
+        <!-- ================= ROSE HEAD ================= -->
+        <!-- Built from individually rotated petal shapes radiating around a
+             central spiral, layered back-to-front, which is what reads
+             visually as an actual rose rather than a single blended shape. -->
+        <g transform="translate(100 100)">
+
+            <!-- back outer petals (largest, furthest back) -->
+            <g fill="url(#petalGradDark)">
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(-35)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(40)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(115)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(190)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(260)"/>
+            </g>
+
+            <!-- mid petals -->
+            <g fill="url(#petalGrad)">
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(-10)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(62)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(134)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(206)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(278)"/>
+            </g>
+
+            <!-- inner petals -->
+            <g fill="url(#petalGradInner)">
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(15)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(95)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(175)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(255)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(335)"/>
+            </g>
+
+            <!-- spiral bud center -->
+            <g fill="#ffb3c1">
+                <path d="M0 -2 C -8 -4, -12 4, -8 10 C -5 14, 2 15, 4 11 C 6 7, 3 2, 0 -2 Z" transform="rotate(20)"/>
+                <path d="M0 -2 C -8 -4, -12 4, -8 10 C -5 14, 2 15, 4 11 C 6 7, 3 2, 0 -2 Z" transform="rotate(140)"/>
+                <path d="M0 -2 C -8 -4, -12 4, -8 10 C -5 14, 2 15, 4 11 C 6 7, 3 2, 0 -2 Z" transform="rotate(260)"/>
+            </g>
+
+            <circle cx="0" cy="2" r="14" fill="url(#centerGlow)" opacity="0.55"/>
+        </g>
+    </svg>
+</div>
+
+<div class="caption">
+    شيء جميل ينتظرك
+    <span>المسي الوردة للمتابعة</span>
+</div>
+
+<div class="fade-out-screen" id="fadeOut"></div>
+
+<script>
+    window.addEventListener('error', (e) => {
+        console.error('Rose scene error:', e.message);
+    });
+
+    // Generate floating particles
+    const particlesContainer = document.getElementById('particles');
+    const PARTICLE_COUNT = 22;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const left = Math.random() * 100;
+        const delay = Math.random() * 8;
+        const duration = 6 + Math.random() * 6;
+        const drift = (Math.random() * 60 - 30) + 'px';
+        const size = 2 + Math.random() * 3;
+
+        p.style.left = left + '%';
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.animationDelay = delay + 's';
+        p.style.animationDuration = duration + 's';
+        p.style.setProperty('--drift', drift);
+        particlesContainer.appendChild(p);
+    }
+
+    let navigating = false;
+    document.body.addEventListener('click', () => {
+        if (navigating) return;
+        navigating = true;
+        document.getElementById('fadeOut').classList.add('active');
+        setTimeout(() => {
+            window.location.href = 'survey.html';
+        }, 950);
+    });
+</script>
+
+</body>
+</html>
