@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة نتائج الاستبيان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/theme.css">
+<style>
+    body {
+        padding: 28px 16px 60px;
+    }
+
+    .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    h1 {
+        font-family: var(--font-display);
+        font-size: 2.1rem;
+        color: var(--color-text);
+        margin: 0 0 6px;
+    }
+
+    .subtitle {
+        color: var(--color-text-faint);
+        font-size: 0.9rem;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--color-crimson-glow);
+        font-family: var(--font-display);
+    }
+
+    .stat-label {
+        color: var(--color-text-faint);
+        font-size: 0.82rem;
+        margin-top: 4px;
+    }
+
+    .responses {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .response-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 14px;
+        padding: 18px 20px;
+        animation: cardIn 0.4s var(--ease-soft);
+    }
+
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .response-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--color-border);
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .response-index {
+        color: var(--color-crimson-bright);
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .response-time {
+        color: var(--color-text-faint);
+        font-size: 0.82rem;
+        direction: ltr;
+        text-align: left;
+    }
+
+    .answers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 10px;
+    }
+
+    .answer-item {
+        background: var(--color-surface-raised);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 0.88rem;
+    }
+
+    .answer-item .q-id {
+        color: var(--color-text-faint);
+        font-size: 0.74rem;
+        margin-bottom: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        direction: ltr;
+        text-align: left;
+    }
+
+    .answer-item .q-val {
+        color: var(--color-text);
+        font-weight: 500;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: var(--color-text-faint);
+        padding: 60px 20px;
+    }
+
+    .refresh-note {
+        text-align: center;
+        color: var(--color-text-faint);
+        font-size: 0.78rem;
+        margin-top: 30px;
+    }
+
+    .loading {
+        text-align: center;
+        color: var(--color-text-faint);
+        padding: 40px;
+    }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+    <header>
+        <h1>📋 نتائج الاستبيان</h1>
+        <div class="subtitle">لوحة تحكم مباشرة — تحديث تلقائي</div>
+    </header>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number" id="totalCount">—</div>
+            <div class="stat-label">إجمالي الردود</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="lastSubmission">—</div>
+            <div class="stat-label">آخر رد</div>
+        </div>
+    </div>
+
+    <div class="responses" id="responsesList">
+        <div class="loading">جاري التحميل...</div>
+    </div>
+
+    <div class="refresh-note">تتحدث هذه الصفحة تلقائياً عند وصول رد جديد</div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { firebaseConfig, DB_PATHS } from "../assets/firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const resultsRef = ref(db, DB_PATHS.results);
+    const responsesList = document.getElementById('responsesList');
+    const totalCount = document.getElementById('totalCount');
+    const lastSubmission = document.getElementById('lastSubmission');
+
+    onValue(resultsRef, (snapshot) => {
+        if (!snapshot.exists()) {
+            totalCount.textContent = '0';
+            lastSubmission.textContent = '—';
+            responsesList.innerHTML = '<div class="empty-state">لا توجد ردود حتى الآن</div>';
+            return;
+        }
+
+        const data = snapshot.val();
+        const entries = Object.entries(data)
+            .map(([key, value]) => ({ key, ...value }))
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        totalCount.textContent = entries.length;
+        lastSubmission.textContent = entries[0]?.time || '—';
+
+        responsesList.innerHTML = '';
+        entries.forEach((entry, i) => {
+            const card = document.createElement('div');
+            card.className = 'response-card';
+
+            const answersHtml = Object.entries(entry.answers || {})
+                .map(([qId, answer]) => `
+                    <div class="answer-item">
+                        <div class="q-id">${qId}</div>
+                        <div class="q-val">${escapeHtml(String(answer))}</div>
+                    </div>
+                `).join('');
+
+            card.innerHTML = `
+                <div class="response-head">
+                    <div class="response-index">رد #${entries.length - i}</div>
+                    <div class="response-time">${entry.date || ''} — ${entry.time || ''}</div>
+                </div>
+                <div class="answers-grid">${answersHtml}</div>
+            `;
+            responsesList.appendChild(card);
+        });
+    });
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+</script>
+
+</body>
+</html>

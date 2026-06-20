@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استبيان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+    body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background:
+            radial-gradient(ellipse at 50% 0%, #1a0a0d 0%, #060608 60%);
+    }
+
+    .card {
+        width: 100%;
+        max-width: 520px;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 18px;
+        padding: 36px 28px;
+        box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--color-crimson), var(--color-crimson-glow), var(--color-crimson));
+    }
+
+    .progress-track {
+        height: 4px;
+        background: var(--color-border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--color-crimson), var(--color-crimson-glow));
+        width: 0%;
+        transition: width 0.5s var(--ease-cinematic);
+    }
+
+    .step-label {
+        font-size: 0.78rem;
+        color: var(--color-text-faint);
+        margin-bottom: 6px;
+        letter-spacing: 0.4px;
+    }
+
+    .question {
+        font-family: var(--font-display);
+        font-size: 1.65rem;
+        font-weight: 600;
+        margin: 0 0 26px;
+        color: var(--color-text);
+        min-height: 2.2em;
+    }
+
+    .answers {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .answer-btn {
+        background: var(--color-surface-raised);
+        border: 1.5px solid var(--color-border);
+        color: var(--color-text);
+        padding: 15px 18px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: var(--font-body);
+        text-align: right;
+        cursor: pointer;
+        transition: border-color 0.2s var(--ease-soft), background 0.2s var(--ease-soft), transform 0.15s ease;
+    }
+
+    .answer-btn:hover {
+        border-color: var(--color-crimson);
+        background: #221a22;
+    }
+
+    .answer-btn:active {
+        transform: scale(0.98);
+    }
+
+    .answer-btn.selected {
+        border-color: var(--color-crimson-bright);
+        background: rgba(179, 18, 46, 0.18);
+        color: #fff;
+    }
+
+    .nav-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        gap: 12px;
+    }
+
+    .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 13px 24px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: var(--font-body);
+        transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    .btn-back {
+        background: transparent;
+        color: var(--color-text-dim);
+        border: 1.5px solid var(--color-border);
+    }
+
+    .btn-next {
+        background: linear-gradient(135deg, var(--color-crimson-bright), var(--color-crimson));
+        color: #fff;
+        flex: 1;
+        position: relative;
+    }
+
+    .btn-next:not(:disabled):active {
+        transform: scale(0.97);
+    }
+
+    /* ---- Final question playful trap button ---- */
+    .btn-next.escaping {
+        position: fixed;
+        z-index: 50;
+        transition: top 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 0 30px rgba(255, 59, 92, 0.5);
+    }
+
+    .btn-next.settling {
+        transition: top 0.6s var(--ease-cinematic), left 0.6s var(--ease-cinematic);
+    }
+
+    .escape-note {
+        text-align: center;
+        font-size: 0.82rem;
+        color: var(--color-ember);
+        margin-top: 14px;
+        min-height: 1.2em;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .escape-note.show {
+        opacity: 1;
+    }
+
+    .loading-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 60;
+        backdrop-filter: blur(3px);
+    }
+
+    .loading-overlay.show {
+        display: flex;
+    }
+
+    .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid rgba(255,255,255,0.15);
+        border-top-color: var(--color-crimson-glow);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .fade-out-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 70;
+        transition: opacity 1s var(--ease-cinematic);
+    }
+
+    .fade-out-screen.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="step-label" id="stepLabel">سؤال 1</div>
+    <div class="question" id="questionText"></div>
+    <div class="answers" id="answersList"></div>
+    <div class="nav-row">
+        <button class="btn btn-back" id="backBtn">السابق</button>
+        <button class="btn btn-next" id="nextBtn" disabled>التالي</button>
+    </div>
+    <div class="escape-note" id="escapeNote">!حاول مرة أخرى 😏</div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+<div class="fade-out-screen" id="fadeOut"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+    import { firebaseConfig, DB_PATHS } from "./assets/firebase-config.js";
+    import QUESTIONS from "./assets/questions.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let currentIndex = 0;
+    const userAnswers = {};
+
+    const questionText = document.getElementById('questionText');
+    const answersList = document.getElementById('answersList');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    const progressFill = document.getElementById('progressFill');
+    const stepLabel = document.getElementById('stepLabel');
+    const escapeNote = document.getElementById('escapeNote');
+
+    function renderQuestion() {
+        const q = QUESTIONS[currentIndex];
+        questionText.textContent = q.text;
+        stepLabel.textContent = `سؤال ${currentIndex + 1} من ${QUESTIONS.length}`;
+        progressFill.style.width = `${((currentIndex) / QUESTIONS.length) * 100}%`;
+
+        answersList.innerHTML = '';
+        q.answers.forEach(answer => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.textContent = answer;
+            if (userAnswers[q.id] === answer) btn.classList.add('selected');
+            btn.addEventListener('click', () => selectAnswer(q, answer, btn));
+            answersList.appendChild(btn);
+        });
+
+        backBtn.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+        nextBtn.textContent = currentIndex === QUESTIONS.length - 1 ? 'إرسال' : 'التالي';
+        nextBtn.disabled = !userAnswers[q.id];
+
+        resetTrapButton();
+
+        if (q.isTrap) {
+            evaluateTrap(userAnswers[q.id]);
+        }
+    }
+
+    function selectAnswer(question, answer, btnEl) {
+        userAnswers[question.id] = answer;
+        [...answersList.children].forEach(b => b.classList.remove('selected'));
+        btnEl.classList.add('selected');
+        nextBtn.disabled = false;
+
+        if (question.isTrap) {
+            evaluateTrap(answer);
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Playful trap button behaviour (final question only)
+    // Always completable. Dodges briefly, then settles into a normal
+    // clickable button regardless of which answer was chosen.
+    // ---------------------------------------------------------------------
+    let trapTimers = [];
+    let trapActive = false;
+
+    function clearTrapTimers() {
+        trapTimers.forEach(t => clearTimeout(t));
+        trapTimers = [];
+    }
+
+    function resetTrapButton() {
+        clearTrapTimers();
+        trapActive = false;
+        nextBtn.classList.remove('escaping', 'settling');
+        nextBtn.style.position = '';
+        nextBtn.style.top = '';
+        nextBtn.style.left = '';
+        nextBtn.style.flex = '';
+        escapeNote.classList.remove('show');
+        document.removeEventListener('mousemove', handleDodge);
+        document.removeEventListener('touchstart', handleChaosTouch);
+    }
+
+    function evaluateTrap(selectedAnswer) {
+        const q = QUESTIONS[currentIndex];
+        if (!q.isTrap) return;
+
+        if (selectedAnswer === q.requiredAnswer) {
+            // Correct answer: settle immediately, button behaves normally.
+            settleTrapButton();
+        } else if (selectedAnswer) {
+            // Any other answer: brief playful dodge, then auto-settle.
+            startTrapDodge();
+        }
+    }
+
+    function startTrapDodge() {
+        if (trapActive) return;
+        trapActive = true;
+        escapeNote.classList.add('show');
+
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+        const rect = nextBtn.getBoundingClientRect();
+        nextBtn.style.position = 'fixed';
+        nextBtn.style.top = rect.top + 'px';
+        nextBtn.style.left = rect.left + 'px';
+        nextBtn.style.flex = 'none';
+        nextBtn.classList.add('escaping');
+
+        if (isTouch) {
+            // Mobile: jump to a few random positions, ignoring taps briefly.
+            let jumps = 0;
+            const maxJumps = 5;
+            function chaosJump() {
+                jumps++;
+                jumpToRandomSpot();
+                if (jumps < maxJumps) {
+                    trapTimers.push(setTimeout(chaosJump, 320 + Math.random() * 200));
+                } else {
+                    settleTrapButton();
+                }
+            }
+            document.addEventListener('touchstart', handleChaosTouch);
+            chaosJump();
+        } else {
+            // Desktop: dodge the cursor for a short window, then settle.
+            document.addEventListener('mousemove', handleDodge);
+            trapTimers.push(setTimeout(settleTrapButton, 3200));
+        }
+    }
+
+    function handleChaosTouch(e) {
+        // Ignore the first couple of taps during chaos phase only.
+        if (trapActive) {
+            e.preventDefault();
+        }
+    }
+
+    function jumpToRandomSpot() {
+        const margin = 70;
+        const maxX = window.innerWidth - margin * 2;
+        const maxY = window.innerHeight - margin * 2;
+        const x = margin + Math.random() * Math.max(maxX, 1);
+        const y = margin + Math.random() * Math.max(maxY, 1);
+        nextBtn.style.left = x + 'px';
+        nextBtn.style.top = y + 'px';
+    }
+
+    function handleDodge(e) {
+        if (!trapActive) return;
+        const rect = nextBtn.getBoundingClientRect();
+        const btnCenterX = rect.left + rect.width / 2;
+        const btnCenterY = rect.top + rect.height / 2;
+        const dx = btnCenterX - e.clientX;
+        const dy = btnCenterY - e.clientY;
+        const dist = Math.hypot(dx, dy);
+        const triggerRadius = 140;
+
+        if (dist < triggerRadius) {
+            const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.6;
+            const pushDist = 110;
+            let newX = rect.left + Math.cos(angle) * pushDist;
+            let newY = rect.top + Math.sin(angle) * pushDist;
+
+            const margin = 20;
+            newX = Math.min(Math.max(newX, margin), window.innerWidth - rect.width - margin);
+            newY = Math.min(Math.max(newY, margin), window.innerHeight - rect.height - margin);
+
+            nextBtn.style.left = newX + 'px';
+            nextBtn.style.top = newY + 'px';
+        }
+    }
+
+    function settleTrapButton() {
+        clearTrapTimers();
+        trapActive = false;
+        document.removeEventListener('mousemove', handleDodge);
+        document.removeEventListener('touchstart', handleChaosTouch);
+        escapeNote.classList.remove('show');
+
+        nextBtn.classList.remove('escaping');
+        nextBtn.classList.add('settling');
+
+        // Animate back to its natural place in the layout.
+        nextBtn.style.position = '';
+        nextBtn.style.top = '';
+        nextBtn.style.left = '';
+        nextBtn.style.flex = '';
+
+        trapTimers.push(setTimeout(() => {
+            nextBtn.classList.remove('settling');
+        }, 650));
+    }
+
+    // ---------------------------------------------------------------------
+    // Navigation
+    // ---------------------------------------------------------------------
+    backBtn.addEventListener('click', () => {
+        if (currentIndex === 0) return;
+        currentIndex--;
+        renderQuestion();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (nextBtn.disabled || trapActive) return;
+        if (currentIndex < QUESTIONS.length - 1) {
+            currentIndex++;
+            renderQuestion();
+        } else {
+            submitSurvey();
+        }
+    });
+
+    async function submitSurvey() {
+        document.getElementById('loadingOverlay').classList.add('show');
+
+        const now = new Date();
+        const payload = {
+            timestamp: now.getTime(),
+            date: now.toLocaleDateString('ar-EG'),
+            time: now.toLocaleTimeString('ar-EG'),
+            answers: userAnswers
+        };
+
+        try {
+            const resultsRef = ref(db, DB_PATHS.results);
+            const newEntryRef = push(resultsRef);
+            await set(newEntryRef, payload);
+        } catch (err) {
+            console.error('فشل حفظ البيانات:', err);
+        }
+
+        document.getElementById('fadeOut').classList.add('active');
+        setTimeout(() => {
+            window.location.href = 'thankyou.html';
+        }, 1000);
+    }
+
+    renderQuestion();
+</script>
+
+</body>
+</html>

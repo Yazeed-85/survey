@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>...</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+    body {
+        background: #000;
+        font-family: var(--font-mono);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .terminal {
+        width: min(90vw, 760px);
+        background: #0a0a0c;
+        border-radius: 10px;
+        border: 1px solid #232026;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02);
+        overflow: hidden;
+        opacity: 0;
+        animation: terminalIn 1s var(--ease-cinematic) forwards;
+    }
+
+    @keyframes terminalIn {
+        from { opacity: 0; transform: translateY(16px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .titlebar {
+        background: #16131a;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid #232026;
+    }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot.red { background: #ff5f56; }
+    .dot.yellow { background: #ffbd2e; }
+    .dot.green { background: #27c93f; }
+
+    .titlebar-label {
+        margin-inline-start: 10px;
+        color: #6b6470;
+        font-size: 0.75rem;
+        letter-spacing: 0.3px;
+        direction: ltr;
+    }
+
+    .code-area {
+        padding: 22px 24px;
+        min-height: 360px;
+        font-size: 0.92rem;
+        line-height: 1.85;
+        direction: ltr;
+        text-align: left;
+        position: relative;
+    }
+
+    .code-line {
+        white-space: pre;
+        opacity: 0;
+    }
+
+    .code-line.shown { opacity: 1; }
+
+    .tag { color: #e06c75; }
+    .attr { color: #d19a66; }
+    .val  { color: #98c379; }
+    .punc { color: #6b6470; }
+    .cmt  { color: #5c6370; font-style: italic; }
+    .txt  { color: #c9c4d0; }
+
+    .cursor {
+        display: inline-block;
+        width: 8px;
+        height: 1.1em;
+        background: var(--color-crimson-bright);
+        vertical-align: text-bottom;
+        margin-inline-start: 2px;
+        animation: blink 0.9s steps(1) infinite;
+    }
+
+    @keyframes blink {
+        50% { opacity: 0; }
+    }
+
+    /* Error / glitch state */
+    .error-line {
+        color: #ff5f56;
+        opacity: 0;
+        font-size: 0.85rem;
+    }
+
+    .error-line.shown {
+        opacity: 1;
+        animation: errorPop 0.25s var(--ease-soft);
+    }
+
+    @keyframes errorPop {
+        from { transform: translateX(-6px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .glitch-active .terminal {
+        animation: shake 0.35s ease-in-out infinite;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translate(0, 0); }
+        20% { transform: translate(-3px, 2px); }
+        40% { transform: translate(3px, -2px); }
+        60% { transform: translate(-2px, -2px); }
+        80% { transform: translate(2px, 2px); }
+    }
+
+    .glitch-overlay {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        mix-blend-mode: screen;
+        background:
+            repeating-linear-gradient(0deg, rgba(255,0,60,0.04) 0px, rgba(255,0,60,0.04) 1px, transparent 1px, transparent 3px);
+        z-index: 5;
+    }
+
+    .glitch-active .glitch-overlay {
+        opacity: 1;
+        animation: flicker 0.15s steps(2) infinite;
+    }
+
+    @keyframes flicker {
+        0% { opacity: 0.15; }
+        50% { opacity: 0.4; }
+        100% { opacity: 0.15; }
+    }
+
+    .scanline-flash {
+        position: fixed;
+        inset: 0;
+        background: #fff;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 20;
+    }
+
+    .skip-hint {
+        position: fixed;
+        bottom: 22px;
+        inset-inline-end: 22px;
+        color: var(--color-text-faint);
+        font-size: 0.75rem;
+        font-family: var(--font-body);
+        letter-spacing: 0.3px;
+        opacity: 0;
+        animation: fadeInLate 1s ease forwards 1.5s;
+        cursor: pointer;
+        user-select: none;
+        direction: rtl;
+    }
+
+    @keyframes fadeInLate {
+        to { opacity: 0.6; }
+    }
+
+    .fade-out-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 30;
+        transition: opacity 1.1s var(--ease-cinematic);
+    }
+
+    .fade-out-screen.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+</style>
+</head>
+<body>
+
+<div class="glitch-overlay"></div>
+<div class="scanline-flash" id="flash"></div>
+<div class="fade-out-screen" id="fadeOut"></div>
+
+<div class="terminal" id="terminal">
+    <div class="titlebar">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+        <div class="titlebar-label">building_something.html — compiling</div>
+    </div>
+    <div class="code-area" id="codeArea"></div>
+</div>
+
+<div class="skip-hint" id="skipHint">انقر للتخطي</div>
+
+<script>
+    const codeArea = document.getElementById('codeArea');
+    const body = document.body;
+
+    // Each line as pre-built HTML spans (already syntax "highlighted")
+    const lines = [
+        `<span class="cmt">&lt;!-- initializing render --&gt;</span>`,
+        `<span class="punc">&lt;</span><span class="tag">section</span> <span class="attr">class</span><span class="punc">=</span><span class="val">"hero"</span><span class="punc">&gt;</span>`,
+        `  <span class="punc">&lt;</span><span class="tag">h1</span><span class="punc">&gt;</span><span class="txt">جاري التحميل...</span><span class="punc">&lt;/</span><span class="tag">h1</span><span class="punc">&gt;</span>`,
+        `  <span class="punc">&lt;</span><span class="tag">div</span> <span class="attr">id</span><span class="punc">=</span><span class="val">"engine"</span><span class="punc">&gt;</span>`,
+        `    <span class="punc">&lt;</span><span class="tag">script</span><span class="punc">&gt;</span>`,
+        `      <span class="txt">const</span> state <span class="punc">=</span> <span class="val">{ ready: false }</span><span class="punc">;</span>`,
+        `      <span class="txt">function</span> <span class="tag">render</span><span class="punc">()</span> <span class="punc">{</span>`,
+        `        <span class="cmt">// preparing something special</span>`,
+        `        load<span class="punc">(</span><span class="val">'experience.core'</span><span class="punc">)</span><span class="punc">;</span>`,
+        `        sync<span class="punc">(</span><span class="val">'emotions.json'</span><span class="punc">)</span><span class="punc">;</span>`,
+        `      <span class="punc">}</span>`,
+        `    <span class="punc">&lt;/</span><span class="tag">script</span><span class="punc">&gt;</span>`,
+        `  <span class="punc">&lt;/</span><span class="tag">div</span><span class="punc">&gt;</span>`,
+        `<span class="punc">&lt;/</span><span class="tag">section</span><span class="punc">&gt;</span>`
+    ];
+
+    let lineIndex = 0;
+    let skipped = false;
+
+    function typeLine(lineHtml, container, onDone) {
+        // Strip tags to get plain text length for timing, but type by revealing
+        // the real HTML progressively using a temp element trick.
+        const temp = document.createElement('span');
+        temp.innerHTML = lineHtml;
+        const fullText = temp.textContent;
+
+        const lineEl = document.createElement('div');
+        lineEl.className = 'code-line shown';
+        container.appendChild(lineEl);
+
+        let charCount = 0;
+        const totalChars = fullText.length;
+
+        function step() {
+            if (skipped) { lineEl.innerHTML = lineHtml; onDone(); return; }
+            charCount++;
+            // Reveal proportionally by re-rendering a slice of the HTML.
+            // Simplify: reveal full HTML once we've "typed" through enough steps,
+            // using a lightweight char-by-char overlay for natural feel.
+            const ratio = charCount / totalChars;
+            if (ratio >= 1) {
+                lineEl.innerHTML = lineHtml + '<span class="cursor"></span>';
+                onDone();
+                return;
+            }
+            lineEl.textContent = fullText.slice(0, charCount);
+            setTimeout(step, 14 + Math.random() * 22);
+        }
+        step();
+    }
+
+    function typeAllLines() {
+        if (lineIndex >= lines.length || skipped) {
+            setTimeout(triggerCrash, skipped ? 200 : 600);
+            return;
+        }
+        // remove cursor from previous line
+        const prevCursor = codeArea.querySelector('.cursor');
+        if (prevCursor) prevCursor.remove();
+
+        typeLine(lines[lineIndex], codeArea, () => {
+            lineIndex++;
+            setTimeout(typeAllLines, 120 + Math.random() * 80);
+        });
+    }
+
+    function triggerCrash() {
+        const flash = document.getElementById('flash');
+        flash.style.transition = 'opacity 0.08s ease';
+        flash.style.opacity = '0.9';
+        setTimeout(() => { flash.style.opacity = '0'; }, 90);
+
+        body.classList.add('glitch-active');
+
+        const errors = [
+            'Uncaught ReferenceError: heart is not defined',
+            'SyntaxError: unexpected token at line 247',
+            'Fatal: emotions.json failed to parse',
+            'TypeError: Cannot read property "feelings" of null',
+            'Process terminated unexpectedly.'
+        ];
+
+        let i = 0;
+        const errInterval = setInterval(() => {
+            if (i >= errors.length) {
+                clearInterval(errInterval);
+                setTimeout(finishIntro, 900);
+                return;
+            }
+            const e = document.createElement('div');
+            e.className = 'error-line';
+            e.textContent = '✗ ' + errors[i];
+            codeArea.appendChild(e);
+            requestAnimationFrame(() => e.classList.add('shown'));
+            codeArea.scrollTop = codeArea.scrollHeight;
+            i++;
+        }, 260);
+    }
+
+    function finishIntro() {
+        document.getElementById('fadeOut').classList.add('active');
+        setTimeout(() => {
+            window.location.href = 'rose.html';
+        }, 1100);
+    }
+
+    function skipIntro() {
+        if (skipped) return;
+        skipped = true;
+        triggerCrash();
+    }
+
+    document.getElementById('skipHint').addEventListener('click', skipIntro);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') skipIntro();
+    });
+
+    setTimeout(typeAllLines, 500);
+</script>
+
+</body>
+</html>

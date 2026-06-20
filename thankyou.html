@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شكراً</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Tajawal:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/theme.css">
+<style>
+    body {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: radial-gradient(ellipse at 50% 50%, #1a0608 0%, #060608 60%, #000 100%);
+        padding: 24px;
+    }
+
+    .glow-ring {
+        position: absolute;
+        width: 380px;
+        height: 380px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(179,18,46,0.25) 0%, transparent 70%);
+        filter: blur(20px);
+        opacity: 0;
+        animation: ringIn 2.5s var(--ease-cinematic) forwards 0.3s;
+    }
+
+    @keyframes ringIn {
+        to { opacity: 1; }
+    }
+
+    .heart {
+        font-size: 3.4rem;
+        opacity: 0;
+        transform: scale(0.6);
+        animation: heartIn 1.2s var(--ease-cinematic) forwards 0.5s;
+        position: relative;
+        z-index: 2;
+    }
+
+    @keyframes heartIn {
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    h1 {
+        font-family: var(--font-display);
+        font-size: 2.4rem;
+        font-weight: 600;
+        margin: 22px 0 10px;
+        color: var(--color-text);
+        opacity: 0;
+        animation: fadeUp 1s var(--ease-cinematic) forwards 1s;
+        position: relative;
+        z-index: 2;
+    }
+
+    p {
+        color: var(--color-text-dim);
+        font-size: 1.05rem;
+        max-width: 380px;
+        line-height: 1.8;
+        opacity: 0;
+        animation: fadeUp 1s var(--ease-cinematic) forwards 1.4s;
+        position: relative;
+        z-index: 2;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+<body>
+    <div class="glow-ring"></div>
+    <div class="heart">🌹</div>
+    <h1>تم بنجاح</h1>
+    <p>شكراً لمشاركتك. كانت لحظة جميلة، ونتمنى أن تكون قد استمتعت بها مثلنا تماماً.</p>
+</body>
+</html>

@@ -1,0 +1,68 @@
+/* ==========================================================================
+   Shared design tokens — cinematic dark / crimson theme
+   Used across all scenes for visual consistency.
+   ========================================================================== */
+
+:root {
+    --color-bg: #060608;
+    --color-bg-deep: #000000;
+    --color-surface: #14111a;
+    --color-surface-raised: #1c1822;
+    --color-border: #2b2433;
+
+    --color-crimson: #b3122e;
+    --color-crimson-bright: #e8294f;
+    --color-crimson-glow: #ff3b5c;
+    --color-ember: #d98a3d;
+
+    --color-text: #f1ecec;
+    --color-text-dim: #a89aa3;
+    --color-text-faint: #6b606e;
+
+    --font-display: 'Cormorant Garamond', 'Noto Naskh Arabic', Georgia, serif;
+    --font-body: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+    --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-bg-deep);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+}
+
+body {
+    min-height: 100vh;
+}
+
+::selection {
+    background: var(--color-crimson);
+    color: #fff;
+}
+
+a {
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
+}
+
+/* Respect reduced motion preference across all scenes */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
