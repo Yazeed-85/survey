@@ -230,14 +230,47 @@
 <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 <div class="fade-out-screen" id="fadeOut"></div>
 
+<script>
+    // Visible fallback: if the module script below fails to load or run
+    // (most commonly because the page was opened as a local file:// path
+    // instead of through a real server, which blocks ES module imports),
+    // show a clear on-page message instead of a silently frozen page.
+    window.addEventListener('error', (e) => {
+        showFatalError(e.message || 'حدث خطأ غير متوقع');
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+        showFatalError((e.reason && e.reason.message) || 'فشل تحميل الصفحة');
+    });
+    function showFatalError(msg) {
+        if (document.getElementById('fatalErrorBox')) return;
+        const box = document.createElement('div');
+        box.id = 'fatalErrorBox';
+        box.style.cssText = 'position:fixed;inset:0;background:#0a0608;color:#f1ecec;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;font-family:sans-serif;z-index:9999;direction:rtl;';
+        box.innerHTML = `
+            <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
+            <div style="font-size:1.1rem;margin-bottom:8px;">لم يتم تحميل الاستبيان بشكل صحيح</div>
+            <div style="font-size:0.85rem;color:#a89aa3;max-width:420px;line-height:1.7;">
+                هذه الصفحة تحتاج إلى أن تُفتح عبر رابط حقيقي (مثل GitHub Pages أو سيرفر محلي)،
+                وليس بفتح الملف مباشرة من جهازك (file://).<br><br>
+                تفاصيل تقنية: ${msg}
+            </div>`;
+        document.body.appendChild(box);
+    }
+</script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
     import { firebaseConfig, DB_PATHS } from "./assets/firebase-config.js";
     import QUESTIONS from "./assets/questions.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    let app, db;
+    try {
+        app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+    } catch (err) {
+        console.error('Firebase init failed:', err);
+        showFatalError('فشل الاتصال بقاعدة البيانات: ' + err.message);
+    }
 
     let currentIndex = 0;
     const userAnswers = {};
@@ -470,7 +503,12 @@
         }, 1000);
     }
 
-    renderQuestion();
+    try {
+        renderQuestion();
+    } catch (err) {
+        console.error('Render failed:', err);
+        showFatalError(err.message);
+    }
 </script>
 
 </body>
