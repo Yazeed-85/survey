@@ -26,6 +26,7 @@
         box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02);
         overflow: hidden;
         opacity: 0;
+        direction: ltr;
         animation: terminalIn 1s var(--ease-cinematic) forwards;
     }
 
@@ -59,19 +60,18 @@
     .code-area {
         padding: 22px 24px;
         min-height: 360px;
-        font-size: 0.92rem;
-        line-height: 1.85;
+        font-size: 1rem;
+        line-height: 1.9;
         direction: ltr;
         text-align: left;
         position: relative;
+        color: #c9c4d0;
     }
 
     .code-line {
         white-space: pre;
-        opacity: 0;
+        color: #c9c4d0;
     }
-
-    .code-line.shown { opacity: 1; }
 
     .tag { color: #e06c75; }
     .attr { color: #d19a66; }
@@ -213,55 +213,70 @@
 
     // Each line as pre-built HTML spans (already syntax "highlighted")
     const lines = [
-        `<span class="cmt">&lt;!-- initializing render --&gt;</span>`,
-        `<span class="punc">&lt;</span><span class="tag">section</span> <span class="attr">class</span><span class="punc">=</span><span class="val">"hero"</span><span class="punc">&gt;</span>`,
-        `  <span class="punc">&lt;</span><span class="tag">h1</span><span class="punc">&gt;</span><span class="txt">جاري التحميل...</span><span class="punc">&lt;/</span><span class="tag">h1</span><span class="punc">&gt;</span>`,
-        `  <span class="punc">&lt;</span><span class="tag">div</span> <span class="attr">id</span><span class="punc">=</span><span class="val">"engine"</span><span class="punc">&gt;</span>`,
-        `    <span class="punc">&lt;</span><span class="tag">script</span><span class="punc">&gt;</span>`,
-        `      <span class="txt">const</span> state <span class="punc">=</span> <span class="val">{ ready: false }</span><span class="punc">;</span>`,
-        `      <span class="txt">function</span> <span class="tag">render</span><span class="punc">()</span> <span class="punc">{</span>`,
-        `        <span class="cmt">// preparing something special</span>`,
-        `        load<span class="punc">(</span><span class="val">'experience.core'</span><span class="punc">)</span><span class="punc">;</span>`,
-        `        sync<span class="punc">(</span><span class="val">'emotions.json'</span><span class="punc">)</span><span class="punc">;</span>`,
-        `      <span class="punc">}</span>`,
-        `    <span class="punc">&lt;/</span><span class="tag">script</span><span class="punc">&gt;</span>`,
-        `  <span class="punc">&lt;/</span><span class="tag">div</span><span class="punc">&gt;</span>`,
-        `<span class="punc">&lt;/</span><span class="tag">section</span><span class="punc">&gt;</span>`
+        `<span class="cmt">&lt;!-- Loading experience --&gt;</span>`,
+        `<span class="punc">&lt;</span><span class="tag">div</span> <span class="attr">class</span><span class="punc">=</span><span class="val">"rose-container"</span><span class="punc">&gt;</span>`,
+        `  <span class="punc">&lt;</span><span class="tag">header</span> <span class="attr">class</span><span class="punc">=</span><span class="val">"intro"</span><span class="punc">&gt;</span>`,
+        `    <span class="punc">&lt;</span><span class="tag">h1</span><span class="punc">&gt;</span><span class="txt">Something is loading</span><span class="punc">&lt;/</span><span class="tag">h1</span><span class="punc">&gt;</span>`,
+        `  <span class="punc">&lt;/</span><span class="tag">header</span><span class="punc">&gt;</span>`,
+        `  <span class="punc">&lt;</span><span class="tag">button</span> <span class="attr">id</span><span class="punc">=</span><span class="val">"startBtn"</span><span class="punc">&gt;</span><span class="txt">Begin</span><span class="punc">&lt;/</span><span class="tag">button</span><span class="punc">&gt;</span>`,
+        `<span class="punc">&lt;/</span><span class="tag">div</span><span class="punc">&gt;</span>`,
+        ``,
+        `<span class="punc">&lt;</span><span class="tag">script</span><span class="punc">&gt;</span>`,
+        `  <span class="cmt">// preparing the connection</span>`,
+        `  <span class="txt">const</span> state <span class="punc">=</span> <span class="val">{</span> ready<span class="punc">:</span> <span class="val">false</span> <span class="val">}</span><span class="punc">;</span>`,
+        `  <span class="txt">function</span> <span class="tag">render</span><span class="punc">(</span><span class="punc">)</span> <span class="punc">{</span>`,
+        `    connect<span class="punc">(</span><span class="val">'emotions.json'</span><span class="punc">)</span><span class="punc">;</span>`,
+        `    state<span class="punc">.</span>ready <span class="punc">=</span> <span class="val">true</span><span class="punc">;</span>`,
+        `  <span class="punc">}</span>`,
+        `<span class="punc">&lt;/</span><span class="tag">script</span><span class="punc">&gt;</span>`
     ];
 
     let lineIndex = 0;
     let skipped = false;
 
+    // Render a line by building its real highlighted HTML immediately,
+    // then revealing it left-to-right with a clip-path wipe driven by
+    // requestAnimationFrame. This avoids slicing textContent character-by-
+    // character, which breaks badly on lines that mix LTR code with RTL
+    // Arabic text (the bidi algorithm reflows mid-type and can render
+    // blank or scrambled). The wipe approach is simple and always visible.
     function typeLine(lineHtml, container, onDone) {
-        // Strip tags to get plain text length for timing, but type by revealing
-        // the real HTML progressively using a temp element trick.
-        const temp = document.createElement('span');
-        temp.innerHTML = lineHtml;
-        const fullText = temp.textContent;
-
         const lineEl = document.createElement('div');
         lineEl.className = 'code-line shown';
+        lineEl.style.position = 'relative';
+
+        const inner = document.createElement('span');
+        inner.innerHTML = lineHtml;
+        inner.style.display = 'inline-block';
+        inner.style.clipPath = 'inset(0 100% 0 0)';
+
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+
+        lineEl.appendChild(inner);
+        lineEl.appendChild(cursor);
         container.appendChild(lineEl);
+        container.scrollTop = container.scrollHeight;
 
-        let charCount = 0;
-        const totalChars = fullText.length;
+        const duration = skipped ? 0 : 420 + Math.random() * 260;
+        const start = performance.now();
 
-        function step() {
-            if (skipped) { lineEl.innerHTML = lineHtml; onDone(); return; }
-            charCount++;
-            // Reveal proportionally by re-rendering a slice of the HTML.
-            // Simplify: reveal full HTML once we've "typed" through enough steps,
-            // using a lightweight char-by-char overlay for natural feel.
-            const ratio = charCount / totalChars;
-            if (ratio >= 1) {
-                lineEl.innerHTML = lineHtml + '<span class="cursor"></span>';
+        function frame(now) {
+            if (skipped) {
+                inner.style.clipPath = 'inset(0 0 0 0)';
                 onDone();
                 return;
             }
-            lineEl.textContent = fullText.slice(0, charCount);
-            setTimeout(step, 14 + Math.random() * 22);
+            const elapsed = now - start;
+            const pct = Math.min(elapsed / duration, 1);
+            inner.style.clipPath = `inset(0 ${100 - pct * 100}% 0 0)`;
+            if (pct < 1) {
+                requestAnimationFrame(frame);
+            } else {
+                onDone();
+            }
         }
-        step();
+        requestAnimationFrame(frame);
     }
 
     function typeAllLines() {
@@ -269,13 +284,12 @@
             setTimeout(triggerCrash, skipped ? 200 : 600);
             return;
         }
-        // remove cursor from previous line
         const prevCursor = codeArea.querySelector('.cursor');
         if (prevCursor) prevCursor.remove();
 
         typeLine(lines[lineIndex], codeArea, () => {
             lineIndex++;
-            setTimeout(typeAllLines, 120 + Math.random() * 80);
+            setTimeout(typeAllLines, 110 + Math.random() * 70);
         });
     }
 
