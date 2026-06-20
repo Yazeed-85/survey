@@ -150,31 +150,72 @@
                 <stop offset="0%" stop-color="#ff6b82"/>
                 <stop offset="100%" stop-color="#b3122e"/>
             </linearGradient>
+            <linearGradient id="petalGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#c81e3c"/>
+                <stop offset="100%" stop-color="#6b0e1f"/>
+            </linearGradient>
             <linearGradient id="stemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stop-color="#2f6b3c"/>
                 <stop offset="100%" stop-color="#173d20"/>
             </linearGradient>
+            <radialGradient id="centerGlow" cx="50%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#ff8fa3"/>
+                <stop offset="100%" stop-color="#ff3b5c" stop-opacity="0"/>
+            </radialGradient>
         </defs>
 
         <!-- stem -->
-        <path d="M100 150 C 95 200, 105 230, 98 290" stroke="url(#stemGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <!-- leaf -->
-        <path d="M100 200 C 80 195, 65 210, 60 230 C 85 228, 98 215, 100 200 Z" fill="#2f6b3c"/>
-        <path d="M99 215 C 105 222, 112 235, 108 250 C 90 248, 82 232, 99 215 Z" fill="#255530"/>
+        <path d="M100 175 C 94 215, 106 245, 99 295" stroke="url(#stemGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- thorn -->
+        <path d="M97 230 C 90 228, 84 232, 82 238 C 90 238, 96 235, 97 230 Z" fill="#2f6b3c"/>
+        <!-- leaves -->
+        <path d="M100 220 C 76 214, 56 228, 50 252 C 78 252, 96 236, 100 220 Z" fill="#2f6b3c"/>
+        <path d="M100 220 C 76 214, 56 228, 50 252" stroke="#173d20" stroke-width="1" fill="none" opacity="0.6"/>
+        <path d="M99 240 C 108 248, 118 264, 112 282 C 90 278, 80 258, 99 240 Z" fill="#255530"/>
+        <path d="M99 240 C 108 248, 118 264, 112 282" stroke="#142d1a" stroke-width="1" fill="none" opacity="0.6"/>
 
-        <!-- outer petals -->
-        <path d="M100 90 C 60 95, 45 130, 60 165 C 75 190, 100 195, 100 195 C 100 195, 125 190, 140 165 C 155 130, 140 95, 100 90 Z" fill="url(#petalGrad)"/>
+        <!-- ================= ROSE HEAD ================= -->
+        <!-- Built from individually rotated petal shapes radiating around a
+             central spiral, layered back-to-front, which is what reads
+             visually as an actual rose rather than a single blended shape. -->
+        <g transform="translate(100 100)">
 
-        <!-- mid layer petals -->
-        <path d="M100 100 C 75 102, 62 125, 70 150 C 78 170, 100 178, 100 178 C 100 178, 122 170, 130 150 C 138 125, 125 102, 100 100 Z" fill="url(#petalGradInner)" opacity="0.95"/>
+            <!-- back outer petals (largest, furthest back) -->
+            <g fill="url(#petalGradDark)">
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(-35)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(40)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(115)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(190)"/>
+                <path d="M0 -8 C -34 -14, -52 12, -40 42 C -32 58, -10 64, 0 60 Z" transform="rotate(260)"/>
+            </g>
 
-        <!-- petal folds (detail strokes) -->
-        <path d="M100 105 C 88 115, 82 135, 92 155" stroke="#7a0f22" stroke-width="1.5" fill="none" opacity="0.5"/>
-        <path d="M100 105 C 112 115, 118 135, 108 155" stroke="#7a0f22" stroke-width="1.5" fill="none" opacity="0.5"/>
+            <!-- mid petals -->
+            <g fill="url(#petalGrad)">
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(-10)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(62)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(134)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(206)"/>
+                <path d="M0 -6 C -26 -10, -38 8, -30 32 C -24 46, -8 50, 0 47 Z" transform="rotate(278)"/>
+            </g>
 
-        <!-- inner curled petals -->
-        <path d="M100 115 C 88 120, 84 138, 95 150 C 100 154, 100 154, 100 154 C 100 154, 100 154, 105 150 C 116 138, 112 120, 100 115 Z" fill="#ff6b82"/>
-        <path d="M100 120 C 94 124, 92 134, 100 142 C 108 134, 106 124, 100 120 Z" fill="#ffb3c1" opacity="0.9"/>
+            <!-- inner petals -->
+            <g fill="url(#petalGradInner)">
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(15)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(95)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(175)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(255)"/>
+                <path d="M0 -4 C -16 -7, -24 6, -18 20 C -14 29, -5 32, 0 30 Z" transform="rotate(335)"/>
+            </g>
+
+            <!-- spiral bud center -->
+            <g fill="#ffb3c1">
+                <path d="M0 -2 C -8 -4, -12 4, -8 10 C -5 14, 2 15, 4 11 C 6 7, 3 2, 0 -2 Z" transform="rotate(20)"/>
+                <path d="M0 -2 C -8 -4, -12 4, -8 10 C -5 14, 2 15, 4 11 C 6 7, 3 2, 0 -2 Z" transform="rotate(140)"/>
+                <path d="M0 -2 C -8 -4, -12 4, -8 10 C -5 14, 2 15, 4 11 C 6 7, 3 2, 0 -2 Z" transform="rotate(260)"/>
+            </g>
+
+            <circle cx="0" cy="2" r="14" fill="url(#centerGlow)" opacity="0.55"/>
+        </g>
     </svg>
 </div>
 
