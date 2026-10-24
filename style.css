@@ -1,0 +1,408 @@
+/* ==========================================================================
+   التصميم المشترك — ثيم سينمائي داكن بلون الورد
+   ========================================================================== */
+
+:root {
+    --bg: #060608;
+    --surface: #14111a;
+    --surface-2: #1c1822;
+    --border: #2b2433;
+
+    --crimson: #b3122e;
+    --crimson-bright: #e8294f;
+    --crimson-glow: #ff3b5c;
+    --ember: #e0a24f;
+    --blush: #ffb3c1;
+
+    --text: #f4eeee;
+    --text-dim: #b3a5ae;
+    --text-faint: #75697a;
+
+    --font-display: 'Aref Ruqaa', 'Noto Naskh Arabic', Georgia, serif;
+    --font-body: 'Tajawal', 'Segoe UI', Tahoma, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    color: var(--text);
+    font-family: var(--font-body);
+    overflow: hidden;
+}
+
+button { font-family: inherit; }
+::selection { background: var(--crimson); color: #fff; }
+
+/* ---------- المسرح والمشاهد ---------- */
+#stage {
+    position: fixed;
+    inset: 0;
+    height: 100vh;
+    height: 100dvh;
+}
+
+.scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    visibility: hidden;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 55%, transparent 40%, rgba(0,0,0,0.55) 100%);
+    z-index: 1;
+}
+
+/* ==========================================================================
+   مشهد 1 — الطرفية
+   ========================================================================== */
+#sceneTerminal { background: #000; }
+
+.terminal {
+    width: min(92vw, 760px);
+    background: #0a0a0c;
+    border-radius: 12px;
+    border: 1px solid #232026;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+    overflow: hidden;
+    direction: ltr;
+    position: relative;
+    z-index: 2;
+}
+
+.titlebar {
+    background: #16131a;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #232026;
+}
+.dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+.titlebar-label {
+    margin-left: 10px;
+    color: #6b6470;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.code-area {
+    padding: 18px 20px 22px;
+    min-height: min(52vh, 380px);
+    font-family: var(--font-mono);
+    font-size: clamp(0.6rem, 2.7vw, 0.98rem);
+    line-height: 1.85;
+    text-align: left;
+    color: #c9c4d0;
+}
+.code-line { white-space: pre; min-height: 1.85em; }
+.tag { color: #e06c75; } .attr { color: #d19a66; } .val { color: #98c379; }
+.punc { color: #6b6470; } .cmt { color: #5c6370; font-style: italic; } .txt { color: #c9c4d0; }
+
+.cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 1.1em;
+    background: var(--crimson-bright);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 0.9s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.error-line {
+    color: #ff5f56;
+    font-size: 0.88em;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.scan-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    mix-blend-mode: screen;
+    background: repeating-linear-gradient(0deg, rgba(255,0,60,0.05) 0, rgba(255,0,60,0.05) 1px, transparent 1px, transparent 3px);
+    z-index: 5;
+}
+
+.skip-hint {
+    position: absolute;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    inset-inline-end: 20px;
+    color: var(--text-faint);
+    font-size: 0.78rem;
+    cursor: pointer;
+    user-select: none;
+    background: none;
+    border: none;
+    padding: 8px;
+    opacity: 0;
+    z-index: 6;
+}
+
+/* ==========================================================================
+   مشهد 2 — الوردة
+   ========================================================================== */
+#sceneRose {
+    background: radial-gradient(ellipse at 50% 62%, #230810 0%, #0a0509 52%, #000 100%);
+    cursor: pointer;
+    gap: clamp(6px, 2svh, 22px);
+}
+
+.ambient-glow {
+    position: absolute;
+    left: 50%;
+    top: 42%;
+    width: min(120vw, 760px);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: radial-gradient(circle, rgba(200,30,60,0.34) 0%, rgba(200,30,60,0.08) 45%, rgba(200,30,60,0) 70%);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.particle {
+    position: absolute;
+    bottom: -12px;
+    border-radius: 50%;
+    background: var(--crimson-glow);
+    box-shadow: 0 0 8px 2px rgba(255, 59, 92, 0.55);
+    opacity: 0;
+}
+
+.rose-wrap {
+    position: relative;
+    z-index: 2;
+    /* يتناسب مع الارتفاع والعرض معاً فلا يتجاوز أي شاشة ولا يتداخل مع النص */
+    width: min(86vw, calc(60svh * 400 / 560), 440px);
+    aspect-ratio: 400 / 560;
+    flex: none;
+}
+.rose-wrap #roseSvg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+.rose-caption {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex: none;
+    max-width: 90vw;
+}
+.rose-caption .l1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 5.2vw, 1.8rem);
+    color: var(--text);
+    line-height: 1.5;
+}
+.rose-caption .l2 {
+    font-size: clamp(0.82rem, 3.2vw, 0.98rem);
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-weight: 300;
+}
+
+.falling-petal {
+    position: absolute;
+    width: 14px;
+    height: 18px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+}
+
+/* ==========================================================================
+   مشهد 3 — الاستبيان
+   ========================================================================== */
+#sceneSurvey {
+    background: radial-gradient(ellipse at 50% 0%, #26090f 0%, #08060a 62%);
+    overflow-y: auto;
+    justify-content: flex-start;
+}
+#sceneSurvey .inner {
+    margin: auto;
+    width: 100%;
+    max-width: 520px;
+    padding: 8px 0;
+}
+
+.card {
+    width: 100%;
+    background: linear-gradient(180deg, #17121d, #120f17);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px 24px 26px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    position: relative;
+}
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 18px; right: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--crimson-glow), transparent);
+}
+
+.progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 26px;
+}
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--crimson), var(--crimson-glow));
+}
+
+.q-body { will-change: transform, opacity; }
+
+.step-label { font-size: 0.8rem; color: var(--text-faint); margin-bottom: 8px; }
+.question {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 6vw, 1.9rem);
+    font-weight: 500;
+    line-height: 1.5;
+    margin: 0 0 22px;
+    min-height: 2.2em;
+}
+
+.answers { display: flex; flex-direction: column; gap: 11px; }
+
+.answer-btn {
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 15px 18px;
+    border-radius: 13px;
+    font-size: 1.02rem;
+    text-align: right;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+}
+.answer-btn:hover { border-color: var(--crimson); background: #251c26; }
+.answer-btn.selected {
+    border-color: var(--crimson-bright);
+    background: rgba(179, 18, 46, 0.2);
+    color: #fff;
+}
+
+.nav-row { display: flex; justify-content: space-between; margin-top: 26px; gap: 12px; }
+
+.btn {
+    border: none;
+    border-radius: 11px;
+    padding: 14px 24px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-back { background: transparent; color: var(--text-dim); border: 1.5px solid var(--border); }
+.btn-next {
+    background: linear-gradient(135deg, var(--crimson-bright), var(--crimson));
+    color: #fff;
+    flex: 1;
+    position: relative;
+    z-index: 40;
+    box-shadow: 0 8px 24px rgba(179, 18, 46, 0.35);
+    touch-action: manipulation;
+}
+.btn-next.escaping { box-shadow: 0 0 34px rgba(255, 59, 92, 0.6); }
+
+.escape-note {
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--ember);
+    margin-top: 14px;
+    min-height: 1.4em;
+    opacity: 0;
+}
+
+/* ==========================================================================
+   مشهد 4 — الشكر
+   ========================================================================== */
+#sceneThanks {
+    background: radial-gradient(ellipse at 50% 40%, #250a10 0%, #07050a 62%, #000 100%);
+    text-align: center;
+    overflow-y: auto;
+    justify-content: flex-start;
+}
+#sceneThanks .inner {
+    margin: auto;
+    max-width: 440px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+}
+.thanks-rose { width: clamp(70px, 18vw, 96px); margin-bottom: 8px; filter: drop-shadow(0 0 26px rgba(255,59,92,.4)); }
+.thanks-title { font-family: var(--font-display); font-size: clamp(1.9rem, 8vw, 2.6rem); margin: 6px 0 8px; }
+.thanks-sub { color: var(--text-dim); line-height: 1.9; font-size: 1.02rem; max-width: 380px; margin: 0; }
+
+.analysis {
+    width: 100%;
+    margin-top: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 18px 20px;
+    text-align: right;
+    visibility: hidden;
+}
+.analysis .a-title { font-size: 0.85rem; color: var(--text-faint); margin-bottom: 10px; }
+.meter { height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.meter-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--crimson), var(--crimson-glow)); border-radius: 8px; }
+.meter-pct { margin-top: 8px; font-family: var(--font-mono); font-size: .8rem; color: var(--text-dim); direction: ltr; text-align: left; }
+.verdict { margin-top: 14px; font-size: 1.08rem; line-height: 1.85; color: var(--text); min-height: 3.6em; }
+.verdict b { color: var(--crimson-glow); }
+
+/* ---------- طبقات عامة ---------- */
+.flash { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 90; }
+.flash.red { background: radial-gradient(circle, #ff3b5c 0%, #7a0f22 70%); }
+
+.loading-overlay {
+    position: fixed; inset: 0; z-index: 80;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center;
+}
+.spinner {
+    width: 38px; height: 38px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: var(--crimson-glow);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-height: 560px) {
+    .card { padding: 20px 18px; }
+    .question { margin-bottom: 14px; min-height: 0; }
+    .answer-btn { padding: 11px 14px; }
+}
