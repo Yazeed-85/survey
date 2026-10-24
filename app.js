@@ -214,7 +214,7 @@ async function toRose() {
     if (!view) view = await viewPromise;
     gsap.set(scenes.terminal, { autoAlpha: 0 });
     gsap.set(scenes.rose, { autoAlpha: 1 });
-    document.title = '🌹';
+    document.title = '             ';
     makeParticles();
     padSound.start(0.075, 4);
     sfx.grow();
