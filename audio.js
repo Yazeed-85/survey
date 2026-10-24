@@ -11,11 +11,16 @@ let pad = null;
 
 try { muted = localStorage.getItem('muted') === '1'; } catch (e) {}
 
+// يُستدعى داخل حدث "click" أو "touchend" مباشرة (شرط سفاري وiOS). يعيد وعداً ينتهي حين يصبح الصوت جاهزاً.
+let silentEl = null;
 export function initAudio() {
     try {
+        // iOS: اجعل جلسة الصوت "تشغيل" حتى يُسمع الصوت مع مفتاح الصامت
+        try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+
         if (!ctx) {
             const AC = window.AudioContext || window.webkitAudioContext;
-            if (!AC) return;
+            if (!AC) return Promise.resolve(false);
             ctx = new AC();
             const comp = ctx.createDynamicsCompressor();
             master = ctx.createGain();
@@ -27,9 +32,57 @@ export function initAudio() {
             const d = noiseBuf.getChannelData(0);
             for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
         }
-        if (ctx.state === 'suspended') ctx.resume();
-    } catch (e) { console.warn('audio init failed', e); }
+        // خدعة فتح الصوت: تشغيل مصدر صامت داخل اللمسة نفسها
+        try {
+            const b = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = b; src.connect(ctx.destination);
+            src.start ? src.start(0) : src.noteOn(0);
+        } catch (e) {}
+        // عنصر <audio> صامت: يرفع قيد مفتاح الصامت في iOS القديم
+        if (!silentEl) {
+            try {
+                silentEl = document.createElement('audio');
+                silentEl.setAttribute('playsinline', '');
+                silentEl.loop = true;
+                silentEl.src = silentWav();
+                silentEl.volume = 0.01;
+                const pr = silentEl.play();
+                if (pr && pr.catch) pr.catch(() => {});
+            } catch (e) {}
+        }
+        if (ctx.state !== 'running') {
+            const pr = ctx.resume();
+            if (pr && pr.then) return pr.then(() => ctx.state === 'running').catch(() => false);
+        }
+        return Promise.resolve(ctx.state === 'running');
+    } catch (e) { console.warn('audio init failed', e); return Promise.resolve(false); }
 }
+
+// ملف WAV صامت صغير مبني بالكود (ثانية واحدة، 8kHz)
+function silentWav() {
+    const sr = 8000, n = sr, buf = new ArrayBuffer(44 + n);
+    const v = new DataView(buf);
+    const w = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+    w(36, 'data'); v.setUint32(40, n, true);
+    for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+}
+
+// تخفيت كل شيء ثم الصمت (نهاية العرض)
+export function fadeOutAll(sec = 1.6) {
+    if (!ctx || !master) return;
+    try { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(0.0001, ctx.currentTime, sec / 4); } catch (e) {}
+}
+export function restoreMaster() {
+    if (!ctx || !master) return;
+    try { master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setTargetAtTime(muted ? 0 : 0.7, ctx.currentTime, 0.05); } catch (e) {}
+}
+
+export function unlock() { if (!ctx || ctx.state !== 'running') return initAudio(); return Promise.resolve(true); }
 
 export function isMuted() { return muted; }
 export function setMuted(m) {
@@ -38,7 +91,11 @@ export function setMuted(m) {
     if (master) master.gain.setTargetAtTime(m ? 0 : 0.7, ctx.currentTime, 0.05);
 }
 
-const ok = () => ctx && ctx.state === 'running' && !muted;
+const ok = () => {
+    if (!ctx || muted) return false;
+    if (ctx.state !== 'running') { try { ctx.resume(); } catch (e) {} return false; }
+    return true;
+};
 const now = () => ctx.currentTime;
 
 // نغمة واحدة بغلاف صوتي (attack/decay)

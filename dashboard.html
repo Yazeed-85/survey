@@ -4,43 +4,115 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>لوحة النتائج</title>
+<title>لوحة التحكم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
     html, body { overflow-y: auto; height: auto; min-height: 100%; background: radial-gradient(ellipse at 50% 0%, #1d0810 0%, #07050a 60%) fixed; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 28px 16px 70px; visibility: hidden; }
-    header { text-align: center; margin-bottom: 26px; }
-    h1 { font-family: var(--font-display); font-size: clamp(1.8rem, 7vw, 2.4rem); margin: 0 0 6px; font-weight: 500; }
-    .subtitle { color: var(--text-faint); font-size: .9rem; }
-    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .stat-card, .response-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
-    .stat-card { padding: 18px; text-align: center; }
-    .stat-number { font-size: 1.9rem; font-weight: 700; color: var(--crimson-glow); }
-    .stat-label { color: var(--text-faint); font-size: .8rem; margin-top: 4px; }
-    .responses { display: flex; flex-direction: column; gap: 14px; }
-    .response-card { padding: 16px 18px; }
-    .response-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;
-        margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-    .response-index { color: var(--crimson-bright); font-weight: 700; font-size: .9rem; }
-    .response-time { color: var(--text-faint); font-size: .82rem; }
-    .answers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-    .answer-item { background: var(--surface-2); border-radius: 9px; padding: 10px 12px; font-size: .9rem; }
-    .q-text { color: var(--text-faint); font-size: .76rem; margin-bottom: 4px; }
-    .q-val { font-weight: 500; }
-    .badge { display: inline-block; margin-inline-start: 6px; font-size: .72rem; color: var(--blush); }
-    .empty-state, .loading { text-align: center; color: var(--text-faint); padding: 50px 20px; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 22px 14px 90px; visibility: hidden; }
+    button { cursor: pointer; }
 
-    /* قفل كلمة المرور */
-    .lock { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px;
+    /* ---------- الرأس والتبويبات ---------- */
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    h1 { font-family: var(--font-display); font-size: clamp(1.5rem, 6vw, 2rem); margin: 0; font-weight: 500; }
+    .live { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; color: var(--text-faint); }
+    .live i { width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; }
+    .live.off i { background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+    .tabs { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; }
+    .tab { border: 0; background: transparent; color: var(--text-dim); padding: 9px 18px; border-radius: 9px; font-size: .92rem; font-weight: 500; }
+    .tab.active { background: linear-gradient(135deg, var(--crimson-bright), var(--crimson)); color: #fff; }
+    .linkbtn { background: none; border: 0; color: var(--text-faint); font-size: .8rem; text-decoration: underline; }
+
+    /* ---------- الإحصاءات ---------- */
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 18px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; text-align: center; }
+    .stat-number { font-size: 1.6rem; font-weight: 700; color: var(--crimson-glow); }
+    .stat-label { color: var(--text-faint); font-size: .76rem; margin-top: 2px; }
+
+    /* ---------- أدوات التحكم ---------- */
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; align-items: center; }
+    .toolbar .grow { flex: 1 1 200px; }
+    input[type=text], input[type=search], select, textarea {
+        background: var(--surface-2); border: 1.5px solid var(--border); color: var(--text); border-radius: 10px;
+        padding: 10px 12px; font-family: inherit; font-size: .9rem; outline: none; min-width: 0; }
+    input:focus, select:focus, textarea:focus { border-color: var(--crimson-bright); }
+    textarea { width: 100%; resize: vertical; min-height: 64px; }
+    .btn-s { border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); border-radius: 10px;
+        padding: 9px 14px; font-size: .86rem; font-weight: 500; white-space: nowrap; }
+    .btn-s:hover { border-color: var(--crimson); }
+    .btn-s.primary { background: linear-gradient(135deg, var(--crimson-bright), var(--crimson)); border-color: transparent; color: #fff; }
+    .btn-s.danger { color: #ff7b8f; border-color: rgba(255,59,92,.35); }
+    .btn-s.danger:hover { background: rgba(255,59,92,.12); }
+    .btn-s.on { border-color: var(--crimson-bright); background: rgba(179,18,46,.2); }
+    .bulkbar { display: none; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 14px;
+        background: rgba(179,18,46,.12); border: 1px solid rgba(255,59,92,.3); border-radius: 12px; font-size: .88rem; }
+    .bulkbar.show { display: flex; }
+    .bulkbar .cnt { margin-inline-end: auto; }
+
+    /* ---------- بطاقات الردود ---------- */
+    .responses { display: flex; flex-direction: column; gap: 12px; }
+    .rc { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; transition: border-color .2s, background .2s; }
+    .rc.sel { border-color: var(--crimson-bright); background: #1b1119; }
+    .rc.star { box-shadow: inset 0 0 0 1px rgba(224,162,79,.35); }
+    .rc-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .rc-head .idx { color: var(--crimson-bright); font-weight: 700; font-size: .92rem; }
+    .rc-head .time { color: var(--text-faint); font-size: .8rem; }
+    .rc-head .spacer { flex: 1; }
+    .ib { background: transparent; border: 1px solid transparent; border-radius: 8px; color: var(--text-dim); font-size: 1.05rem; padding: 5px 8px; line-height: 1; }
+    .ib:hover { background: var(--surface-2); border-color: var(--border); color: #fff; }
+    .ib.on { color: var(--ember); }
+    .chk { width: 18px; height: 18px; accent-color: var(--crimson-bright); }
+    .answers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 9px; }
+    .ai { background: var(--surface-2); border-radius: 9px; padding: 9px 11px; font-size: .88rem; }
+    .ai .qt { color: var(--text-faint); font-size: .74rem; margin-bottom: 3px; }
+    .ai .qv { font-weight: 500; }
+    .ai select { width: 100%; margin-top: 2px; }
+    .badge { color: var(--blush); font-size: .72rem; margin-inline-start: 6px; }
+    .notebox { margin-top: 10px; }
+    .note-view { margin-top: 10px; background: rgba(224,162,79,.08); border: 1px dashed rgba(224,162,79,.35); border-radius: 9px; padding: 8px 11px; font-size: .85rem; color: #e8cf9f; white-space: pre-wrap; }
+    .rc-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+    .empty, .loading { text-align: center; color: var(--text-faint); padding: 50px 20px; }
+
+    /* ---------- محرر الأسئلة ---------- */
+    .qcard { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+    .qcard.trap { border-color: rgba(255,59,92,.4); }
+    .qhead { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .qhead .n { color: var(--crimson-bright); font-weight: 700; }
+    .qhead .spacer { flex: 1; }
+    .qcard input[type=text] { width: 100%; }
+    .alist { display: flex; flex-direction: column; gap: 7px; margin: 10px 0; }
+    .arow { display: flex; gap: 6px; align-items: center; }
+    .arow input[type=text] { flex: 1; }
+    .arow input[type=radio] { accent-color: var(--crimson-bright); width: 17px; height: 17px; }
+    .qopts { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: .86rem; color: var(--text-dim); }
+    .qopts label { display: inline-flex; align-items: center; gap: 6px; }
+    .qopts input[type=checkbox] { accent-color: var(--crimson-bright); width: 17px; height: 17px; }
+    .hint { color: var(--text-faint); font-size: .8rem; line-height: 1.7; margin: 8px 0 14px; }
+    .savebar { position: sticky; bottom: 10px; display: flex; gap: 8px; flex-wrap: wrap; padding: 10px; background: rgba(12,8,14,.92);
+        border: 1px solid var(--border); border-radius: 14px; backdrop-filter: blur(6px); margin-top: 14px; }
+    .tag { display: inline-block; font-size: .72rem; padding: 2px 8px; border-radius: 20px; background: var(--surface-2); color: var(--text-dim); margin-inline-start: 6px; }
+
+    /* ---------- نوافذ وإشعارات ---------- */
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 300; }
+    .modal-bg.show { display: flex; }
+    .modal { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px 20px 18px; }
+    .modal h3 { margin: 0 0 8px; font-size: 1.1rem; }
+    .modal p { margin: 0 0 14px; color: var(--text-dim); font-size: .9rem; line-height: 1.8; }
+    .modal input { width: 100%; margin-bottom: 14px; }
+    .modal .row { display: flex; gap: 8px; justify-content: flex-end; }
+    .toasts { position: fixed; bottom: 16px; inset-inline: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 400; pointer-events: none; padding: 0 12px; }
+    .toast { pointer-events: auto; background: #241a28; border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: .88rem;
+        display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.5); max-width: 460px; }
+    .toast button { background: none; border: 0; color: var(--crimson-glow); font-weight: 700; font-size: .88rem; }
+
+    /* ---------- قفل كلمة المرور ---------- */
+    .lock { position: fixed; inset: 0; z-index: 250; display: flex; align-items: center; justify-content: center; padding: 20px;
         background: radial-gradient(ellipse at 50% 40%, #250a10 0%, #07050a 65%, #000 100%); }
     .lock-box { width: 100%; max-width: 340px; text-align: center; }
     .lock-box .ico { font-size: 2.6rem; margin-bottom: 8px; }
     .lock-box h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; margin: 0 0 18px; }
-    .lock-box input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--border);
-        background: var(--surface-2); color: var(--text); font-size: 1rem; text-align: center; direction: ltr; outline: none; }
-    .lock-box input:focus { border-color: var(--crimson-bright); }
+    .lock-box input { width: 100%; padding: 14px 16px; text-align: center; direction: ltr; font-size: 1rem; }
     .lock-box button { margin-top: 12px; width: 100%; }
     .lock-err { color: var(--ember); font-size: .85rem; min-height: 1.4em; margin-top: 10px; }
 </style>
@@ -50,7 +122,7 @@
 <div class="lock" id="lock">
     <form class="lock-box" id="lockForm" autocomplete="off">
         <div class="ico">🔒</div>
-        <h2>لوحة النتائج</h2>
+        <h2>لوحة التحكم</h2>
         <input id="pw" type="password" placeholder="كلمة المرور" autocomplete="current-password" autofocus>
         <button class="btn btn-next" type="submit">دخول</button>
         <div class="lock-err" id="lockErr"></div>
@@ -58,105 +130,413 @@
 </div>
 
 <div class="wrap" id="wrap">
-    <header>
-        <h1>🌹 نتائج الاستبيان</h1>
-        <div class="subtitle">لوحة مباشرة — تتحدث تلقائياً</div>
-    </header>
-    <div class="stats-row">
-        <div class="stat-card"><div class="stat-number" id="totalCount">—</div><div class="stat-label">إجمالي الردود</div></div>
-        <div class="stat-card"><div class="stat-number" id="lastSubmission" style="font-size:1.2rem;padding-top:9px">—</div><div class="stat-label">آخر رد</div></div>
-        <div class="stat-card"><div class="stat-number" id="loveAvg">—</div><div class="stat-label">إجابات رومانسية</div></div>
+    <div class="top">
+        <div>
+            <h1>🌹 لوحة التحكم</h1>
+            <span class="live" id="live"><i></i><span id="liveTxt">متصل</span></span>
+            <button class="linkbtn" id="logout" type="button">خروج</button>
+        </div>
+        <div class="tabs">
+            <button class="tab active" data-tab="resp" type="button">الردود</button>
+            <button class="tab" data-tab="ques" type="button">الأسئلة</button>
+        </div>
     </div>
-    <div class="responses" id="responsesList"><div class="loading">جاري التحميل...</div></div>
+
+    <!-- ========== تبويب الردود ========== -->
+    <section id="tabResp">
+        <div class="stats-row">
+            <div class="stat-card"><div class="stat-number" id="sTotal">—</div><div class="stat-label">إجمالي الردود</div></div>
+            <div class="stat-card"><div class="stat-number" id="sLast" style="font-size:1.05rem;padding-top:8px">—</div><div class="stat-label">آخر رد</div></div>
+            <div class="stat-card"><div class="stat-number" id="sStar">0</div><div class="stat-label">مميّزة ★</div></div>
+            <div class="stat-card"><div class="stat-number" id="sNote">0</div><div class="stat-label">بملاحظات</div></div>
+        </div>
+
+        <div class="toolbar">
+            <input class="grow" type="search" id="search" placeholder="بحث في الأجوبة والملاحظات…">
+            <select id="sort"><option value="new">الأحدث أولاً</option><option value="old">الأقدم أولاً</option></select>
+            <select id="filter"><option value="all">كل الردود</option><option value="star">المميّزة ★</option><option value="note">التي بها ملاحظة</option></select>
+        </div>
+        <div class="toolbar">
+            <button class="btn-s" id="btnSelect" type="button">☑ تحديد</button>
+            <button class="btn-s" id="btnCsv" type="button">⬇ Excel / CSV</button>
+            <button class="btn-s" id="btnJson" type="button">⬇ JSON</button>
+            <span style="flex:1"></span>
+            <button class="btn-s danger" id="btnDelAll" type="button">🗑 حذف كل الردود</button>
+        </div>
+        <div class="bulkbar" id="bulkbar">
+            <span class="cnt" id="bulkCnt">0 محدد</span>
+            <button class="btn-s" id="bulkAll" type="button">تحديد الكل</button>
+            <button class="btn-s" id="bulkStar" type="button">★ تمييز</button>
+            <button class="btn-s danger" id="bulkDel" type="button">🗑 حذف المحدد</button>
+            <button class="btn-s" id="bulkCancel" type="button">إلغاء</button>
+        </div>
+
+        <div class="responses" id="responsesList"><div class="loading">جاري التحميل...</div></div>
+    </section>
+
+    <!-- ========== تبويب الأسئلة ========== -->
+    <section id="tabQues" style="display:none">
+        <p class="hint">
+            عدّل الأسئلة هنا وتظهر فوراً لمن يفتح الرابط بعد الحفظ، بدون إعادة رفع الملفات.
+            <b>السؤال المفخخ</b>: يهرب زر "التالي" ما دام الجواب المختار غير المحدد بالدائرة ●.
+            تغيير نص السؤال لا يمسّ الردود القديمة، لكن حذف سؤال تبقى أجوبته محفوظة باسم المعرّف.
+        </p>
+        <div id="qList"></div>
+        <div class="savebar">
+            <button class="btn-s" id="qAdd" type="button">＋ سؤال جديد</button>
+            <span style="flex:1"></span>
+            <button class="btn-s" id="qReset" type="button">استرجاع الأسئلة الافتراضية</button>
+            <button class="btn-s primary" id="qSave" type="button">💾 حفظ الأسئلة</button>
+        </div>
+    </section>
 </div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="toasts" id="toasts"></div>
 
 <script src="vendor/gsap.min.js"></script>
 <script type="module">
-    import { firebaseConfig, DB_PATHS, QUESTIONS, DASHBOARD_PASSWORD_HASH } from './config.js';
+import { firebaseConfig, DB_PATHS, QUESTIONS as DEFAULT_Q, DASHBOARD_PASSWORD_HASH } from './config.js';
 
-    const $ = (id) => document.getElementById(id);
-    const qMap = Object.fromEntries(QUESTIONS.map(q => [q.id, q]));
+const $ = (id) => document.getElementById(id);
+const esc = (s) => { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; };
 
-    async function sha256(text) {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-        return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+// ======================= قفل كلمة المرور =======================
+async function sha256(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function unlock() {
+    gsap.to('#lock', { opacity: 0, duration: 0.5, onComplete: () => $('lock').remove() });
+    gsap.set('#wrap', { visibility: 'visible' });
+    gsap.from('#wrap > *', { y: 18, opacity: 0, duration: 0.6, stagger: 0.08, ease: 'power3.out' });
+    startData();
+}
+try { if (sessionStorage.getItem('dash_ok') === DASHBOARD_PASSWORD_HASH) unlock(); } catch (e) {}
+$('lockForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const h = await sha256($('pw').value);
+    if (h === DASHBOARD_PASSWORD_HASH) { try { sessionStorage.setItem('dash_ok', h); } catch (e) {} unlock(); }
+    else { $('lockErr').textContent = 'كلمة المرور غير صحيحة'; gsap.fromTo('.lock-box', { x: -10 }, { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' }); $('pw').select(); }
+});
+$('logout').addEventListener('click', () => { try { sessionStorage.removeItem('dash_ok'); } catch (e) {} location.reload(); });
 
-    function unlock() {
-        gsap.to('#lock', { opacity: 0, duration: 0.5, onComplete: () => $('lock').remove() });
-        gsap.set('#wrap', { visibility: 'visible' });
-        gsap.from('#wrap > *', { y: 20, opacity: 0, duration: 0.7, stagger: 0.1, ease: 'power3.out' });
-        startData();
-    }
-
-    try { if (sessionStorage.getItem('dash_ok') === DASHBOARD_PASSWORD_HASH) unlock(); } catch (e) {}
-
-    $('lockForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const h = await sha256($('pw').value);
-        if (h === DASHBOARD_PASSWORD_HASH) {
-            try { sessionStorage.setItem('dash_ok', h); } catch (e) {}
-            unlock();
-        } else {
-            $('lockErr').textContent = 'كلمة المرور غير صحيحة';
-            gsap.fromTo('.lock-box', { x: -10 }, { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' });
-            $('pw').select();
-        }
+// ======================= نوافذ وإشعارات =======================
+function confirmModal({ title, text, ok = 'تأكيد', danger = false, requireText = null }) {
+    return new Promise(resolve => {
+        $('modal').innerHTML = `<h3>${esc(title)}</h3><p>${esc(text)}</p>
+            ${requireText ? `<input type="text" id="mReq" placeholder='اكتب "${esc(requireText)}" للتأكيد' autocomplete="off">` : ''}
+            <div class="row"><button class="btn-s" id="mNo" type="button">إلغاء</button>
+            <button class="btn-s ${danger ? 'danger' : 'primary'}" id="mYes" type="button">${esc(ok)}</button></div>`;
+        $('modalBg').classList.add('show');
+        gsap.fromTo('#modal', { y: 16, opacity: 0, scale: .97 }, { y: 0, opacity: 1, scale: 1, duration: .25, ease: 'power2.out' });
+        const close = (v) => { $('modalBg').classList.remove('show'); resolve(v); };
+        $('mNo').onclick = () => close(false);
+        $('modalBg').onclick = (e) => { if (e.target === $('modalBg')) close(false); };
+        $('mYes').onclick = () => {
+            if (requireText && $('mReq').value.trim() !== requireText) { gsap.fromTo('#mReq', { x: -6 }, { x: 0, duration: .4, ease: 'elastic.out(1,.3)' }); return; }
+            close(true);
+        };
+        if (requireText) $('mReq').focus();
     });
+}
+function toast(msg, actionLabel, action, ms = 8000) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<span>${esc(msg)}</span>${actionLabel ? `<button type="button">${esc(actionLabel)}</button>` : ''}`;
+    $('toasts').appendChild(t);
+    gsap.from(t, { y: 20, opacity: 0, duration: .3 });
+    const kill = () => gsap.to(t, { opacity: 0, y: 10, duration: .25, onComplete: () => t.remove() });
+    if (actionLabel) t.querySelector('button').onclick = () => { action(); kill(); };
+    setTimeout(kill, ms);
+}
 
-    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+// ======================= البيانات =======================
+let fb = null, entries = [], questions = DEFAULT_Q, qSource = 'default';
+let selectMode = false; const selected = new Set();
+const editing = new Map();      // key -> مسودة الأجوبة
+const noteOpen = new Map();     // key -> مسودة الملاحظة
+const qMap = () => Object.fromEntries(questions.map(q => [q.id, q]));
+const path = (k) => `${DB_PATHS.results}/${k}`;
 
-    async function startData() {
-        let onValue, ref, db;
-        try {
-            const [a, d] = await Promise.all([
-                import('https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js'),
-                import('https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js')
-            ]);
-            db = d.getDatabase(a.initializeApp(firebaseConfig));
-            ({ onValue, ref } = d);
-        } catch (err) {
-            $('responsesList').innerHTML = '<div class="empty-state">تعذّر الاتصال بقاعدة البيانات</div>';
-            return;
-        }
-
-        let first = true;
-        onValue(ref(db, DB_PATHS.results), (snap) => {
-            const list = $('responsesList');
-            if (!snap.exists()) {
-                $('totalCount').textContent = '0';
-                $('lastSubmission').textContent = '—';
-                $('loveAvg').textContent = '—';
-                list.innerHTML = '<div class="empty-state">لا توجد ردود حتى الآن</div>';
-                return;
-            }
-            const entries = Object.entries(snap.val())
-                .map(([key, v]) => ({ key, ...v }))
-                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-            $('totalCount').textContent = entries.length;
-            $('lastSubmission').textContent = entries[0]?.time || '—';
-
-            let love = 0, traps = 0;
-            list.innerHTML = '';
-            entries.forEach((entry, i) => {
-                const items = Object.entries(entry.answers || {}).map(([qId, answer]) => {
-                    const q = qMap[qId];
-                    let badge = '';
-                    if (q?.isTrap) { traps++; if (answer === q.requiredAnswer) { love++; badge = '<span class="badge">❤️ رومانسي</span>'; } }
-                    return `<div class="answer-item"><div class="q-text">${esc(q ? q.text : qId)}</div><div class="q-val">${esc(String(answer))}${badge}</div></div>`;
-                }).join('');
-                const card = document.createElement('div');
-                card.className = 'response-card';
-                card.innerHTML = `<div class="response-head"><div class="response-index">رد #${entries.length - i}</div>
-                    <div class="response-time">${esc(entry.date || '')} — ${esc(entry.time || '')}</div></div>
-                    <div class="answers-grid">${items}</div>`;
-                list.appendChild(card);
-            });
-            $('loveAvg').textContent = traps ? `${love}/${traps}` : '—';
-            if (first) { first = false; gsap.from('.response-card', { y: 16, opacity: 0, duration: 0.5, stagger: 0.07, ease: 'power2.out' }); }
-        });
+async function startData() {
+    try {
+        const [a, d] = await Promise.all([
+            import('https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js'),
+            import('https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js')
+        ]);
+        fb = { db: d.getDatabase(a.initializeApp(firebaseConfig)), ...d };
+    } catch (err) {
+        $('responsesList').innerHTML = '<div class="empty">تعذّر الاتصال بقاعدة البيانات</div>';
+        $('live').classList.add('off'); $('liveTxt').textContent = 'غير متصل';
+        return;
     }
+    fb.onValue(fb.ref(fb.db, '.info/connected'), s => {
+        $('live').classList.toggle('off', !s.val()); $('liveTxt').textContent = s.val() ? 'متصل' : 'غير متصل';
+    });
+    fb.onValue(fb.ref(fb.db, DB_PATHS.metadata + '/questions'), snap => {
+        if (snap.exists()) {
+            const v = snap.val();
+            questions = (Array.isArray(v) ? v : Object.values(v)).filter(Boolean);
+            qSource = 'custom';
+        } else { questions = DEFAULT_Q; qSource = 'default'; }
+        if (!qDirty) renderQuestions();
+        renderResponses();
+    });
+    fb.onValue(fb.ref(fb.db, DB_PATHS.results), snap => {
+        entries = snap.exists() ? Object.entries(snap.val()).map(([key, v]) => ({ key, ...v })) : [];
+        [...selected].forEach(k => { if (!entries.find(e => e.key === k)) selected.delete(k); });
+        renderResponses();
+    });
+}
+
+// ======================= تبويبات =======================
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === b));
+    $('tabResp').style.display = b.dataset.tab === 'resp' ? '' : 'none';
+    $('tabQues').style.display = b.dataset.tab === 'ques' ? '' : 'none';
+    if (b.dataset.tab === 'ques') renderQuestions();
+}));
+
+// ======================= الردود =======================
+const isLove = (e) => {
+    const m = qMap(); let n = 0, ok = 0;
+    for (const [id, a] of Object.entries(e.answers || {})) { const q = m[id]; if (q && q.isTrap) { n++; if (a === q.requiredAnswer) ok++; } }
+    return n ? ok / n : null;
+};
+
+function filtered() {
+    const term = $('search').value.trim().toLowerCase();
+    const f = $('filter').value;
+    let list = entries.slice().sort((a, b) => ($('sort').value === 'old' ? 1 : -1) * ((b.timestamp || 0) - (a.timestamp || 0)));
+    if (f === 'star') list = list.filter(e => e.star);
+    if (f === 'note') list = list.filter(e => e.note);
+    if (term) list = list.filter(e => (Object.values(e.answers || {}).join(' ') + ' ' + (e.note || '') + ' ' + (e.date || '') + ' ' + (e.time || '')).toLowerCase().includes(term));
+    return list;
+}
+
+function renderResponses() {
+    const all = entries.slice().sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+    const num = new Map(all.map((e, i) => [e.key, i + 1]));
+    const last = all[all.length - 1];
+    $('sTotal').textContent = entries.length;
+    $('sLast').textContent = last ? `${last.time || ''}` : '—';
+    $('sStar').textContent = entries.filter(e => e.star).length;
+    $('sNote').textContent = entries.filter(e => e.note).length;
+
+    const list = filtered();
+    const box = $('responsesList');
+    if (!entries.length) { box.innerHTML = '<div class="empty">لا توجد ردود حتى الآن</div>'; updateBulk(); return; }
+    if (!list.length) { box.innerHTML = '<div class="empty">لا توجد نتائج مطابقة</div>'; updateBulk(); return; }
+
+    const m = qMap();
+    box.innerHTML = list.map(e => {
+        const k = e.key, ed = editing.get(k), nd = noteOpen.get(k);
+        const ids = [...new Set([...questions.map(q => q.id), ...Object.keys(e.answers || {})])];
+        let body;
+        if (ed) {
+            body = `<div class="answers-grid">${ids.map(id => {
+                const q = m[id]; const cur = ed[id] ?? '';
+                const opts = q ? [...q.answers] : []; if (cur && !opts.includes(cur)) opts.push(cur);
+                return `<div class="ai"><div class="qt">${esc(q ? q.text : id)}</div>
+                    <select data-edit="${esc(k)}" data-q="${esc(id)}"><option value="">— بدون —</option>${opts.map(o => `<option ${o === cur ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`;
+            }).join('')}</div>
+            <div class="rc-actions"><button class="btn-s" data-action="edit-cancel" data-key="${esc(k)}" type="button">إلغاء</button>
+            <button class="btn-s primary" data-action="edit-save" data-key="${esc(k)}" type="button">حفظ التعديل</button></div>`;
+        } else {
+            body = `<div class="answers-grid">${Object.entries(e.answers || {}).map(([id, a]) => {
+                const q = m[id]; const love = q && q.isTrap && a === q.requiredAnswer;
+                return `<div class="ai"><div class="qt">${esc(q ? q.text : id)}</div><div class="qv">${esc(a)}${love ? '<span class="badge">❤️</span>' : ''}</div></div>`;
+            }).join('')}</div>`;
+        }
+        const note = nd !== undefined
+            ? `<div class="notebox"><textarea data-note="${esc(k)}" placeholder="ملاحظة خاصة بك…">${esc(nd)}</textarea>
+               <div class="rc-actions"><button class="btn-s" data-action="note-cancel" data-key="${esc(k)}" type="button">إلغاء</button>
+               <button class="btn-s primary" data-action="note-save" data-key="${esc(k)}" type="button">حفظ الملاحظة</button></div></div>`
+            : (e.note ? `<div class="note-view">📝 ${esc(e.note)}</div>` : '');
+        return `<article class="rc ${selected.has(k) ? 'sel' : ''} ${e.star ? 'star' : ''}" data-key="${esc(k)}">
+            <div class="rc-head">
+                ${selectMode ? `<input type="checkbox" class="chk" data-key="${esc(k)}" ${selected.has(k) ? 'checked' : ''}>` : ''}
+                <span class="idx">#${num.get(k)}</span><span class="time">${esc(e.date || '')} — ${esc(e.time || '')}</span>
+                <span class="spacer"></span>
+                <button class="ib ${e.star ? 'on' : ''}" data-action="star" data-key="${esc(k)}" title="تمييز" type="button">${e.star ? '★' : '☆'}</button>
+                <button class="ib" data-action="edit" data-key="${esc(k)}" title="تعديل الأجوبة" type="button">✎</button>
+                <button class="ib" data-action="note" data-key="${esc(k)}" title="ملاحظة" type="button">📝</button>
+                <button class="ib" data-action="del" data-key="${esc(k)}" title="حذف" type="button">🗑</button>
+            </div>${body}${note}</article>`;
+    }).join('');
+    updateBulk();
+}
+
+function updateBulk() {
+    $('bulkbar').classList.toggle('show', selectMode);
+    $('bulkCnt').textContent = `${selected.size} محدد`;
+    $('btnSelect').classList.toggle('on', selectMode);
+}
+
+// ---- أحداث البطاقات (تفويض) ----
+$('responsesList').addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('[data-action]');
+    if (!btn) return;
+    const key = btn.dataset.key, act = btn.dataset.action;
+    const e = entries.find(x => x.key === key); if (!e) return;
+    if (act === 'star') await fb.update(fb.ref(fb.db, path(key)), { star: e.star ? null : true });
+    if (act === 'edit') { editing.set(key, { ...(e.answers || {}) }); renderResponses(); }
+    if (act === 'edit-cancel') { editing.delete(key); renderResponses(); }
+    if (act === 'edit-save') {
+        const draft = editing.get(key); const clean = {};
+        Object.entries(draft).forEach(([id, v]) => { if (v) clean[id] = v; });
+        if (!Object.keys(clean).length) { toast('لا يمكن ترك الرد بلا أجوبة'); return; }
+        await fb.set(fb.ref(fb.db, path(key) + '/answers'), clean);
+        editing.delete(key); toast('تم حفظ التعديل');
+    }
+    if (act === 'note') { noteOpen.set(key, e.note || ''); renderResponses(); }
+    if (act === 'note-cancel') { noteOpen.delete(key); renderResponses(); }
+    if (act === 'note-save') {
+        const v = (noteOpen.get(key) || '').trim();
+        await fb.update(fb.ref(fb.db, path(key)), { note: v || null });
+        noteOpen.delete(key); toast('تم حفظ الملاحظة');
+    }
+    if (act === 'del') deleteKeys([key]);
+});
+$('responsesList').addEventListener('change', (ev) => {
+    const t = ev.target;
+    if (t.matches('select[data-edit]')) editing.get(t.dataset.edit)[t.dataset.q] = t.value;
+    if (t.matches('.chk')) { t.checked ? selected.add(t.dataset.key) : selected.delete(t.dataset.key); t.closest('.rc').classList.toggle('sel', t.checked); updateBulk(); }
+});
+$('responsesList').addEventListener('input', (ev) => { if (ev.target.matches('textarea[data-note]')) noteOpen.set(ev.target.dataset.note, ev.target.value); });
+
+// ---- حذف مع تراجع ----
+async function deleteKeys(keys, skipConfirm = false) {
+    if (!keys.length) return;
+    if (!skipConfirm) {
+        const ok = await confirmModal({
+            title: keys.length === 1 ? 'حذف هذا الرد؟' : `حذف ${keys.length} ردود؟`,
+            text: 'سيُحذف نهائياً من قاعدة البيانات. يمكنك التراجع لثوانٍ بعد الحذف.', ok: 'حذف', danger: true });
+        if (!ok) return;
+    }
+    const backup = {}; keys.forEach(k => { const e = entries.find(x => x.key === k); if (e) { const { key, ...rest } = e; backup[k] = rest; } });
+    await Promise.all(keys.map(k => fb.remove(fb.ref(fb.db, path(k)))));
+    keys.forEach(k => selected.delete(k));
+    toast(`تم حذف ${keys.length}`, 'تراجع', async () => {
+        await Promise.all(Object.entries(backup).map(([k, v]) => fb.set(fb.ref(fb.db, path(k)), v)));
+        toast('تم الاسترجاع');
+    }, 10000);
+}
+
+// ---- أدوات الشريط ----
+['search', 'sort', 'filter'].forEach(id => $(id).addEventListener('input', renderResponses));
+$('btnSelect').addEventListener('click', () => { selectMode = !selectMode; if (!selectMode) selected.clear(); renderResponses(); });
+$('bulkCancel').addEventListener('click', () => { selectMode = false; selected.clear(); renderResponses(); });
+$('bulkAll').addEventListener('click', () => {
+    const list = filtered(); const allSel = list.every(e => selected.has(e.key));
+    list.forEach(e => allSel ? selected.delete(e.key) : selected.add(e.key)); renderResponses();
+});
+$('bulkDel').addEventListener('click', () => deleteKeys([...selected]));
+$('bulkStar').addEventListener('click', async () => {
+    await Promise.all([...selected].map(k => fb.update(fb.ref(fb.db, path(k)), { star: true }))); toast('تم التمييز');
+});
+$('btnDelAll').addEventListener('click', async () => {
+    if (!entries.length) { toast('لا توجد ردود لحذفها'); return; }
+    const ok = await confirmModal({ title: 'حذف كل الردود؟', text: `سيُحذف ${entries.length} رداً نهائياً.`, ok: 'حذف الكل', danger: true, requireText: 'حذف' });
+    if (ok) deleteKeys(entries.map(e => e.key), true);
+});
+
+// ---- التصدير ----
+function download(name, text, type) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+$('btnJson').addEventListener('click', () => {
+    download('survey-results.json', JSON.stringify(Object.fromEntries(entries.map(({ key, ...v }) => [key, v])), null, 2), 'application/json');
+});
+$('btnCsv').addEventListener('click', () => {
+    const q = qMap(); const ids = [...new Set([...questions.map(x => x.id), ...entries.flatMap(e => Object.keys(e.answers || {}))])];
+    const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const head = ['#', 'التاريخ', 'الوقت', ...ids.map(id => q[id]?.text || id), 'مميّز', 'ملاحظة'];
+    const rows = entries.slice().sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0)).map((e, i) =>
+        [i + 1, e.date, e.time, ...ids.map(id => (e.answers || {})[id] ?? ''), e.star ? '★' : '', e.note || ''].map(cell).join(','));
+    download('survey-results.csv', '﻿' + [head.map(cell).join(','), ...rows].join('\r\n'), 'text/csv;charset=utf-8');
+});
+
+// ======================= محرر الأسئلة =======================
+let draft = [];       // نسخة عمل
+let qDirty = false;
+
+function loadDraft() { draft = JSON.parse(JSON.stringify(questions)); qDirty = false; }
+function renderQuestions() {
+    if (!qDirty) loadDraft();
+    $('qList').innerHTML = (qSource === 'default' ? '<p class="hint">الأسئلة الحالية: <span class="tag">الافتراضية من ملف config.js</span></p>' : '<p class="hint">الأسئلة الحالية: <span class="tag">معدّلة من اللوحة</span></p>')
+        + draft.map((q, i) => `
+        <div class="qcard ${q.isTrap ? 'trap' : ''}" data-i="${i}">
+            <div class="qhead"><span class="n">سؤال ${i + 1}</span>${q.isTrap ? '<span class="tag">مفخخ</span>' : ''}<span class="spacer"></span>
+                <button class="ib" data-q="up" title="أعلى" type="button">↑</button><button class="ib" data-q="down" title="أسفل" type="button">↓</button>
+                <button class="ib" data-q="del" title="حذف السؤال" type="button">🗑</button></div>
+            <input type="text" data-f="text" value="${esc(q.text)}" placeholder="نص السؤال">
+            <div class="alist">${q.answers.map((a, j) => `
+                <div class="arow">
+                    <input type="radio" name="req${i}" data-f="req" data-j="${j}" ${q.isTrap && q.requiredAnswer === a ? 'checked' : ''} ${q.isTrap ? '' : 'disabled'} title="الجواب المطلوب">
+                    <input type="text" data-f="ans" data-j="${j}" value="${esc(a)}" placeholder="جواب">
+                    <button class="ib" data-q="rmans" data-j="${j}" type="button" title="حذف الجواب">✕</button>
+                </div>`).join('')}
+            </div>
+            <div class="qopts">
+                <button class="btn-s" data-q="addans" type="button">＋ جواب</button>
+                <label><input type="checkbox" data-f="trap" ${q.isTrap ? 'checked' : ''}> سؤال مفخخ (الزر يهرب)</label>
+                ${q.isTrap ? '<span>● الدائرة تحدد الجواب المطلوب</span>' : ''}
+            </div>
+        </div>`).join('');
+}
+$('qList').addEventListener('input', (ev) => {
+    const t = ev.target, card = t.closest('.qcard'); if (!card) return;
+    const q = draft[+card.dataset.i], f = t.dataset.f; qDirty = true;
+    if (f === 'text') q.text = t.value;
+    if (f === 'ans') { const j = +t.dataset.j; if (q.requiredAnswer === q.answers[j]) q.requiredAnswer = t.value; q.answers[j] = t.value; }
+});
+$('qList').addEventListener('change', (ev) => {
+    const t = ev.target, card = t.closest('.qcard'); if (!card) return;
+    const q = draft[+card.dataset.i], f = t.dataset.f; qDirty = true;
+    if (f === 'trap') { q.isTrap = t.checked; if (t.checked && !q.requiredAnswer) q.requiredAnswer = q.answers[q.answers.length - 1]; if (!t.checked) delete q.requiredAnswer; renderQuestions(); }
+    if (f === 'req') q.requiredAnswer = q.answers[+t.dataset.j];
+});
+$('qList').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-q]'); if (!b) return;
+    const i = +b.closest('.qcard').dataset.i, q = draft[i]; qDirty = true;
+    const a = b.dataset.q;
+    if (a === 'addans') q.answers.push('');
+    if (a === 'rmans') { const j = +b.dataset.j; if (q.answers.length <= 2) { toast('يلزم جوابان على الأقل'); return; } if (q.requiredAnswer === q.answers[j]) q.requiredAnswer = q.answers[0]; q.answers.splice(j, 1); }
+    if (a === 'del') { if (draft.length <= 1) { toast('يلزم سؤال واحد على الأقل'); return; } draft.splice(i, 1); }
+    if (a === 'up' && i > 0) [draft[i - 1], draft[i]] = [draft[i], draft[i - 1]];
+    if (a === 'down' && i < draft.length - 1) [draft[i + 1], draft[i]] = [draft[i], draft[i + 1]];
+    renderQuestions();
+});
+$('qAdd').addEventListener('click', () => {
+    qDirty = true;
+    draft.push({ id: 'q' + Date.now().toString(36), text: '', answers: ['', ''] });
+    renderQuestions();
+    $('qList').lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+$('qSave').addEventListener('click', async () => {
+    const clean = draft.map(q => {
+        const o = { id: q.id, text: q.text.trim(), answers: q.answers.map(a => a.trim()).filter(Boolean) };
+        if (q.isTrap) { o.isTrap = true; o.requiredAnswer = (q.requiredAnswer || '').trim(); }
+        return o;
+    });
+    for (const [i, q] of clean.entries()) {
+        if (!q.text) return toast(`السؤال ${i + 1}: النص فارغ`);
+        if (q.answers.length < 2) return toast(`السؤال ${i + 1}: يلزم جوابان على الأقل`);
+        if (new Set(q.answers).size !== q.answers.length) return toast(`السؤال ${i + 1}: أجوبة مكررة`);
+        if (q.isTrap && !q.answers.includes(q.requiredAnswer)) return toast(`السؤال ${i + 1}: حدّد الجواب المطلوب`);
+    }
+    await fb.set(fb.ref(fb.db, DB_PATHS.metadata + '/questions'), clean);
+    qDirty = false; toast('تم حفظ الأسئلة — تظهر فوراً للزوار الجدد');
+});
+$('qReset').addEventListener('click', async () => {
+    const ok = await confirmModal({ title: 'استرجاع الأسئلة الافتراضية؟', text: 'ستُحذف تعديلات اللوحة ويعود الاستبيان لأسئلة ملف config.js.', ok: 'استرجاع', danger: true });
+    if (!ok) return;
+    await fb.remove(fb.ref(fb.db, DB_PATHS.metadata + '/questions')); qDirty = false; toast('تم الاسترجاع');
+});
 </script>
 </body>
 </html>

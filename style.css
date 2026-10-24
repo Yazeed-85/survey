@@ -407,11 +407,22 @@ button { font-family: inherit; }
     .answer-btn { padding: 11px 14px; }
 }
 
-/* ---------- بوابة البدء (تفتح الصوت بعد أول لمسة) ---------- */
-.gate { position: fixed; inset: 0; z-index: 100; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.gate-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--crimson-glow); box-shadow: 0 0 18px 4px rgba(255,59,92,.55);
-    animation: gatePulse 1.8s ease-in-out infinite; }
-@keyframes gatePulse { 0%,100% { transform: scale(.7); opacity: .45; } 50% { transform: scale(1.25); opacity: 1; } }
+/* ---------- بوابة الدخول (أول نقرة تشغّل الصوت والعرض معاً) ---------- */
+.gate { position: fixed; inset: 0; z-index: 100; background: #000; border: 0; padding: 0; margin: 0; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; font-family: var(--font-body); color: var(--text); }
+.gate-box { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 22px 46px 20px; border: 1.5px solid rgba(255,59,92,.6); border-radius: 16px; background: rgba(179,18,46,.08);
+    box-shadow: 0 0 40px rgba(255,59,92,.18), inset 0 0 24px rgba(255,59,92,.06); transition: transform .2s, box-shadow .2s; }
+.gate:hover .gate-box { transform: scale(1.04); box-shadow: 0 0 56px rgba(255,59,92,.32), inset 0 0 28px rgba(255,59,92,.1); }
+.gate:active .gate-box { transform: scale(.97); }
+.gate-icon { width: 44px; height: 44px; color: var(--crimson-glow); animation: gateTap 1.8s ease-in-out infinite; filter: drop-shadow(0 0 8px rgba(255,59,92,.6)); }
+.gate-text { font-size: 1.35rem; font-weight: 700; letter-spacing: .5px; }
+.gate-box::after { content: ""; position: absolute; left: 50%; top: 34%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%;
+    border: 2px solid var(--crimson-glow); opacity: 0; animation: gateRipple 1.8s ease-out infinite; pointer-events: none; }
+@keyframes gateTap { 0%, 55%, 100% { transform: translateY(0) scale(1); } 28% { transform: translateY(6px) scale(.92); } }
+@keyframes gateRipple { 0%, 22% { opacity: 0; transform: scale(.4); } 30% { opacity: .9; } 80% { opacity: 0; transform: scale(5); } 100% { opacity: 0; } }
+
+.blackout { position: fixed; inset: 0; background: #000; opacity: 0; pointer-events: none; z-index: 200; }
 
 .mute-btn { position: fixed; top: max(12px, env(safe-area-inset-top)); inset-inline-start: 12px; z-index: 95;
     width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.35);
@@ -422,3 +433,10 @@ button { font-family: inherit; }
 .analysis { margin-top: 30px; padding: 16px 18px 14px; }
 .stamp { width: clamp(130px, 38vw, 170px); margin-top: 22px; opacity: 0; visibility: hidden; filter: drop-shadow(0 0 16px rgba(255,59,92,.45)); }
 .meter-pct { text-align: center; }
+
+.thanks-rose3d { width: clamp(150px, 42vw, 210px); aspect-ratio: 1; margin-bottom: -6px; }
+.btn-next.escaping { position: fixed; }
+
+.hearts { color: #ff3b5c; text-shadow: 0 0 8px rgba(255,59,92,.6); letter-spacing: 2px; }
+
+.thanks-rose3d { position: relative; }
