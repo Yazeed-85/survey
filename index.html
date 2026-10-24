@@ -13,6 +13,9 @@
 </head>
 <body>
 
+<div class="gate" id="gate" role="button" aria-label="ابدأ"><div class="gate-dot"></div></div>
+<button class="mute-btn" id="muteBtn" type="button" aria-label="الصوت">🔊</button>
+
 <main id="stage">
 
     <!-- ============ مشهد 1: الطرفية ============ -->
@@ -25,7 +28,6 @@
             </div>
             <div class="code-area" id="codeArea"></div>
         </div>
-        <button class="skip-hint" id="skipBtn" type="button">انقر للتخطي</button>
     </section>
 
     <!-- ============ مشهد 2: الوردة ============ -->
@@ -39,8 +41,7 @@
         </div>
 
         <div class="rose-caption" id="roseCaption">
-            <div class="l1">شيء جميل ينتظرك</div>
-            <div class="l2">المسي الوردة للمتابعة</div>
+            <div class="l1">المسي الوردة</div>
         </div>
     </section>
 
@@ -50,7 +51,6 @@
             <div class="card" id="card">
                 <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
                 <div class="q-body" id="qBody">
-                    <div class="step-label" id="stepLabel"></div>
                     <h2 class="question" id="questionText"></h2>
                     <div class="answers" id="answersList"></div>
                 </div>
@@ -58,24 +58,38 @@
                     <button class="btn btn-back" id="backBtn" type="button">السابق</button>
                     <button class="btn btn-next" id="nextBtn" type="button" disabled>التالي</button>
                 </div>
-                <div class="escape-note" id="escapeNote"></div>
-            </div>
+                        </div>
         </div>
     </section>
 
     <!-- ============ مشهد 4: الشكر ============ -->
     <section class="scene" id="sceneThanks" aria-label="thanks">
         <div class="inner">
-            <svg class="thanks-rose" id="thanksRose" viewBox="70 40 260 270" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
-            <h1 class="thanks-title" id="thanksTitle">تم بنجاح</h1>
-            <p class="thanks-sub" id="thanksSub">شكراً لمشاركتك. كانت لحظة جميلة، ونتمنى أن تكوني قد استمتعتِ بها مثلنا تماماً.</p>
+            <svg class="thanks-rose" id="thanksRose" viewBox="55 40 290 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+            <h1 class="thanks-title" id="thanksTitle">شكراً لك</h1>
 
             <div class="analysis" id="analysis">
-                <div class="a-title">جارٍ تحليل مستوى الحب في إجاباتك…</div>
                 <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
                 <div class="meter-pct" id="meterPct">0%</div>
-                <div class="verdict" id="verdict"></div>
             </div>
+
+            <svg class="stamp" id="stamp" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="كفو">
+                <defs>
+                    <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/>
+                        <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"/>
+                    </filter>
+                </defs>
+                <g filter="url(#rough)" fill="none" stroke="#ff3b5c" stroke-linecap="round">
+                    <circle cx="100" cy="100" r="92" stroke-width="6"/>
+                    <circle cx="100" cy="100" r="80" stroke-width="2"/>
+                    <circle cx="100" cy="100" r="53" stroke-width="1.4" stroke-dasharray="2 6" opacity=".7"/>
+                    <path d="M30 100 h18 M152 100 h18" stroke-width="2.5" opacity=".8"/>
+                    <text x="100" y="124" text-anchor="middle" fill="#ff3b5c" stroke="none" font-family="'Aref Ruqaa', serif" font-weight="700" font-size="74">كفو</text>
+                    <path d="M100 26 l4 9 l9 1 l-7 6 l2 9 l-8 -5 l-8 5 l2 -9 l-7 -6 l9 -1 z" fill="#ff3b5c" stroke="none" transform="translate(0 -4) scale(1)"/>
+                    <path d="M100 156 l3 7 l7 1 l-5 5 l1 7 l-6 -4 l-6 4 l1 -7 l-5 -5 l7 -1 z" fill="#ff3b5c" stroke="none" opacity=".85"/>
+                </g>
+            </svg>
         </div>
     </section>
 </main>

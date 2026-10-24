@@ -212,7 +212,7 @@ button { font-family: inherit; }
 }
 .rose-caption .l1 {
     font-family: var(--font-display);
-    font-size: clamp(1.25rem, 5.2vw, 1.8rem);
+    font-size: clamp(1.5rem, 6vw, 2.1rem);
     color: var(--text);
     line-height: 1.5;
 }
@@ -406,3 +406,19 @@ button { font-family: inherit; }
     .question { margin-bottom: 14px; min-height: 0; }
     .answer-btn { padding: 11px 14px; }
 }
+
+/* ---------- بوابة البدء (تفتح الصوت بعد أول لمسة) ---------- */
+.gate { position: fixed; inset: 0; z-index: 100; background: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.gate-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--crimson-glow); box-shadow: 0 0 18px 4px rgba(255,59,92,.55);
+    animation: gatePulse 1.8s ease-in-out infinite; }
+@keyframes gatePulse { 0%,100% { transform: scale(.7); opacity: .45; } 50% { transform: scale(1.25); opacity: 1; } }
+
+.mute-btn { position: fixed; top: max(12px, env(safe-area-inset-top)); inset-inline-start: 12px; z-index: 95;
+    width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(255,255,255,.12); background: rgba(0,0,0,.35);
+    color: #fff; font-size: 1rem; cursor: pointer; opacity: .55; backdrop-filter: blur(4px); }
+.mute-btn:hover { opacity: 1; }
+
+/* ---------- الشكر: الشريط والختم ---------- */
+.analysis { margin-top: 30px; padding: 16px 18px 14px; }
+.stamp { width: clamp(130px, 38vw, 170px); margin-top: 22px; opacity: 0; visibility: hidden; filter: drop-shadow(0 0 16px rgba(255,59,92,.45)); }
+.meter-pct { text-align: center; }
