@@ -404,9 +404,15 @@ function onPointerDown(e) {
 }
 function swallowClick(e) { if (trapActive) { e.stopImmediatePropagation(); e.preventDefault(); } }
 
+const navRow = nextBtn.parentNode;      // مكان الزر الأصلي
+let returnTimer = null;
+let trapState = 'home';                  // home | fleeing | returning
+
 function engageTrap() {
     if (trapActive) return;
+    if (trapState === 'returning') finalizeReturn();   // لو كان عائداً نثبّته أولاً ثم نبدأ من جديد
     trapActive = true;
+    trapState = 'fleeing';
     const r = nextBtn.getBoundingClientRect();
     base = { left: r.left, top: r.top, w: r.width, h: r.height };
 
@@ -430,21 +436,26 @@ function engageTrap() {
     flee(lastPointer);
 }
 
+// إعادة الزر إلى مكانه الأصلي فوراً وبشكل مضمون (مهما كانت حالته)
 function restoreButton() {
+    clearTimeout(returnTimer);
+    gsap.killTweensOf(nextBtn);
     if (placeholder) {
-        placeholder.parentNode.insertBefore(nextBtn, placeholder);
+        if (placeholder.parentNode) placeholder.parentNode.insertBefore(nextBtn, placeholder);
         placeholder.remove();
         placeholder = null;
     }
-    gsap.killTweensOf(nextBtn);
+    if (nextBtn.parentNode !== navRow) navRow.appendChild(nextBtn);   // شبكة أمان
     nextBtn.removeAttribute('style');
     nextBtn.classList.remove('escaping');
     gsap.set(nextBtn, { clearProps: 'all' });
     base = null;
+    trapState = 'home';
 }
+function finalizeReturn() { restoreButton(); }
 
 function releaseTrap(animate) {
-    const wasActive = trapActive;
+    const was = trapState;
     trapActive = false;
     document.removeEventListener('pointermove', onPointerMove);
     document.removeEventListener('pointerdown', onPointerDown, true);
@@ -452,19 +463,27 @@ function releaseTrap(animate) {
     nextBtn.tabIndex = 0;
     nextBtn.removeAttribute('aria-disabled');
 
-    if (animate && wasActive && placeholder && base) {
+    if (animate && was === 'fleeing' && placeholder && base) {
+        trapState = 'returning';
         const tr = placeholder.getBoundingClientRect();
-        gsap.to(nextBtn, { x: tr.left - base.left, y: tr.top - base.top, rotation: 0, duration: 1.0,
-            ease: 'elastic.out(1, 0.6)', overwrite: true, onComplete: restoreButton });
+        gsap.to(nextBtn, { x: tr.left - base.left, y: tr.top - base.top, rotation: 0, duration: 0.45,
+            ease: 'power3.out', overwrite: true, onComplete: finalizeReturn });
+        returnTimer = setTimeout(finalizeReturn, 650);   // احتياط: يعود حتى لو تعطلت الحركة
     } else {
         restoreButton();
     }
 }
 function resetTrap() { releaseTrap(false); }
 
+// حارس: إن لم يكن الفخ فعّالاً فلا يجوز أن يبقى الزر خارج مكانه أبداً
+setInterval(() => {
+    if (!trapActive && trapState !== 'returning' && (nextBtn.parentNode !== navRow || placeholder)) restoreButton();
+}, 400);
+
 function evaluateTrap(q, answer) {
     if (answer === q.requiredAnswer) {
         if (trapActive) releaseTrap(true);
+        else if (trapState !== 'home' && trapState !== 'returning') restoreButton();
         sfx.correct();
     } else {
         engageTrap();
